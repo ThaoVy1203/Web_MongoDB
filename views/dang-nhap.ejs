@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Đăng nhập & Đăng ký - WarrantyOps</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+    }
+  </style>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ff6b00",
+            "primary-dark": "#d95800",
+            "brand-brown": "#7A3000",
+            "brand-dark": "#111315"
+          },
+          fontFamily: {
+            "sans": ["Plus Jakarta Sans", "Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="font-sans antialiased text-[#111315] selection:bg-[#ff6b00]/20 selection:text-[#d95800] min-h-screen relative"
+  style="background: #fbf8f4 url('/images/background.png') no-repeat center bottom; background-size: cover; background-attachment: fixed;">
+
+  <!-- NÚT TRỞ VỀ TRANG CHỦ GÓC TRÊN TRÁI -->
+  <div class="absolute top-6 left-6 z-20">
+    <a href="/"
+      class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/80 hover:bg-white text-xs font-bold text-slate-700 hover:text-[#d95800] shadow-xs border border-slate-200/80 backdrop-blur-sm transition-all duration-150">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      <span>Trang chủ</span>
+    </a>
+  </div>
+
+  <!-- CONTAINER CHÍNH CĂN GIỮA TOÀN MÀN HÌNH -->
+  <div class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 relative z-10">
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center py-8">
+
+      <!-- ==============================================
+           CỘT TRÁI (LG:COL-SPAN-6): LOGO & TIÊU ĐỀ CHÍNH
+      ============================================== -->
+      <div class="lg:col-span-6 flex flex-col justify-center lg:pr-8">
+
+        <!-- LOGO BRANDING -->
+        <a href="/" class="inline-flex items-center gap-3 mb-6 group w-fit">
+          <img src="/images/logo1.png" alt="WarrantyOps Logo" class="h-24 sm:h-28 lg:h-36 object-contain transition-transform group-hover:scale-105"
+            onerror="this.onerror=null; this.src='/images/logo.png';">
+        </a>
+
+        <!-- TIÊU ĐỀ CHÍNH -->
+        <h1 class="text-3xl sm:text-4xl lg:text-[44px] font-black text-[#111315] tracking-tight leading-[1.2]">
+          Hệ thống Quản lý<br>
+          <span class="text-[#d95800]">Bảo hành Sản phẩm</span>
+        </h1>
+
+      </div>
+
+      <!-- ==============================================
+           CỘT PHẢI (LG:COL-SPAN-6): THẺ FORM AUTH (ĐĂNG NHẬP / ĐĂNG KÝ)
+      ============================================== -->
+      <div class="lg:col-span-6 flex justify-center">
+        
+        <div class="w-full max-w-[460px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-slate-100 p-7 sm:p-9 relative">
+
+          <!-- THÔNG BÁO FLASH (NẾU CÓ) -->
+          <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+            <div class="mb-5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span><%= successMessage %></span>
+            </div>
+          <% } %>
+
+          <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+            <div class="mb-5 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span><%= errorMessage %></span>
+            </div>
+          <% } %>
+
+          <!-- TABS CHUYỂN ĐỔI: ĐĂNG NHẬP & ĐĂNG KÝ TÀI KHOẢN -->
+          <div class="flex items-center gap-2.5 mb-7">
+            
+            <!-- Tab 1: Đăng nhập -->
+            <button id="tabLoginBtn" type="button" onclick="switchAuthTab('login')"
+              class="flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer <%= activeTab === 'register' ? 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200' : 'bg-[#7A3000] text-white shadow-xs' %>">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <span>Đăng nhập</span>
+            </button>
+
+            <!-- Tab 2: Đăng ký tài khoản -->
+            <button id="tabRegisterBtn" type="button" onclick="switchAuthTab('register')"
+              class="flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer <%= activeTab === 'register' ? 'bg-[#7A3000] text-white shadow-xs' : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200' %>">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+              <span>Đăng ký tài khoản</span>
+            </button>
+
+          </div>
+
+          <!-- ==========================================
+               A. NỘI DUNG TAB 1: FORM ĐĂNG NHẬP
+          ========================================== -->
+          <div id="loginFormContainer" class="<%= activeTab === 'register' ? 'hidden' : 'block' %>">
+            
+            <div class="mb-6">
+              <h2 class="text-xl sm:text-2xl font-bold text-[#111315] tracking-tight">
+                Đăng nhập vào <span class="italic text-[#d95800] font-black">WarrantyOps</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-1">Truy cập hệ thống để quản lý và theo dõi bảo hành.</p>
+            </div>
+
+            <form action="/dang-nhap" method="POST" class="space-y-4">
+              
+              <!-- Trường Email hoặc số điện thoại -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Email hoặc số điện thoại</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                  </div>
+                  <input type="text" name="email" required
+                    placeholder="vidu@email.com hoặc 0912xxx"
+                    class="w-full bg-slate-50/60 border border-slate-200 text-slate-800 text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:bg-white focus:border-[#ff6b00] focus:ring-1 focus:ring-[#ff6b00] font-medium transition-all">
+                </div>
+              </div>
+
+              <!-- Trường Mật khẩu -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Mật khẩu</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </div>
+                  <input type="password" name="password" id="loginPasswordInput" required
+                    placeholder="Nhập mật khẩu của bạn"
+                    class="w-full bg-slate-50/60 border border-slate-200 text-slate-800 text-sm rounded-xl py-3 pl-10 pr-10 focus:outline-none focus:bg-white focus:border-[#ff6b00] focus:ring-1 focus:ring-[#ff6b00] font-medium transition-all">
+                  <button type="button" onclick="togglePasswordVisibility('loginPasswordInput', this)"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" title="Ẩn/Hiện mật khẩu">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Ghi nhớ đăng nhập & Quên mật khẩu -->
+              <div class="flex items-center justify-between text-xs pt-0.5">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" name="remember" checked
+                    class="w-4 h-4 text-[#ff6b00] focus:ring-[#ff6b00] rounded accent-[#ff6b00] cursor-pointer">
+                  <span class="text-slate-600 font-semibold">Ghi nhớ đăng nhập</span>
+                </label>
+                <a href="javascript:alert('Vui lòng liên hệ tổng đài 1900 6868 hoặc gửi email về support@warrantyops.com.vn để được hỗ trợ cấp lại mật khẩu.');"
+                  class="text-slate-500 hover:text-[#ff6b00] font-semibold transition-colors">
+                  Quên mật khẩu?
+                </a>
+              </div>
+
+              <!-- Nút Đăng nhập -->
+              <button type="submit"
+                class="w-full bg-[#d95800] hover:bg-[#ea580c] text-white font-bold text-sm py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer mt-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>Đăng nhập</span>
+              </button>
+
+            </form>
+
+            <!-- Đường phân cách hoặc tiếp tục với -->
+            <div class="relative my-6 text-center">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-200"></div>
+              </div>
+              <span class="relative bg-white px-3 text-xs text-slate-400 font-medium">Hoặc tiếp tục với</span>
+            </div>
+
+            <!-- Nút Social Login (Google & Apple) -->
+            <div class="grid grid-cols-2 gap-3">
+              <!-- Google -->
+              <button type="button" onclick="alert('Đang kết nối xác thực tài khoản Google...')"
+                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-bold text-slate-700 cursor-pointer shadow-xs">
+                <svg width="15" height="15" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+                <span>Google</span>
+              </button>
+
+              <!-- Apple -->
+              <button type="button" onclick="alert('Đang kết nối xác thực tài khoản Apple ID...')"
+                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-bold text-slate-700 cursor-pointer shadow-xs">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.64 1.35-.57.65-1.06 1.7-0.93 2.73 1 .08 2.03-.48 2.65-1.23z"/>
+                </svg>
+                <span>Apple</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- ==========================================
+               B. NỘI DUNG TAB 2: FORM ĐĂNG KÝ
+          ========================================== -->
+          <div id="registerFormContainer" class="<%= activeTab === 'register' ? 'block' : 'hidden' %>">
+            
+            <div class="mb-6">
+              <h2 class="text-xl sm:text-2xl font-bold text-[#111315] tracking-tight">
+                Đăng ký tài khoản <span class="italic text-[#d95800] font-black">WarrantyOps</span>
+              </h2>
+              <p class="text-xs text-slate-400 mt-1">Đăng ký nhanh chóng để quản lý và theo dõi bảo hành.</p>
+            </div>
+
+            <form action="/dang-ky" method="POST" class="space-y-3.5">
+              
+              <!-- Trường Họ và tên -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Họ và tên <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <input type="text" name="fullname" required
+                    placeholder="Nguyễn Văn An"
+                    class="w-full bg-slate-50/60 border border-slate-200 text-slate-800 text-sm rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:bg-white focus:border-[#ff6b00] focus:ring-1 focus:ring-[#ff6b00] font-medium transition-all">
+                </div>
+              </div>
+
+              <!-- Trường Email hoặc số điện thoại -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Email hoặc số điện thoại <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                  </div>
+                  <input type="text" name="email" required
+                    placeholder="vidu@email.com hoặc 0912xxx"
+                    class="w-full bg-slate-50/60 border border-slate-200 text-slate-800 text-sm rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:bg-white focus:border-[#ff6b00] focus:ring-1 focus:ring-[#ff6b00] font-medium transition-all">
+                </div>
+              </div>
+
+              <!-- Trường Mật khẩu -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Mật khẩu <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                  </div>
+                  <input type="password" name="password" id="regPasswordInput" required
+                    placeholder="Tối thiểu 6 ký tự"
+                    class="w-full bg-slate-50/60 border border-slate-200 text-slate-800 text-sm rounded-xl py-2.5 pl-10 pr-10 focus:outline-none focus:bg-white focus:border-[#ff6b00] focus:ring-1 focus:ring-[#ff6b00] font-medium transition-all">
+                  <button type="button" onclick="togglePasswordVisibility('regPasswordInput', this)"
+                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer" title="Ẩn/Hiện mật khẩu">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Trường Xác nhận mật khẩu -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Xác nhận mật khẩu <span class="text-rose-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <input type="password" name="confirmPassword" required
+                    placeholder="Nhập lại mật khẩu"
+                    class="w-full bg-slate-50/60 border border-slate-200 text-slate-800 text-sm rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:bg-white focus:border-[#ff6b00] focus:ring-1 focus:ring-[#ff6b00] font-medium transition-all">
+                </div>
+              </div>
+
+              <!-- Đồng ý điều khoản -->
+              <div class="flex items-start gap-2 text-xs pt-1">
+                <input type="checkbox" name="terms" required checked
+                  class="w-4 h-4 text-[#ff6b00] focus:ring-[#ff6b00] rounded accent-[#ff6b00] cursor-pointer mt-0.5">
+                <span class="text-slate-600 leading-tight">
+                  Tôi đồng ý với <a href="#" class="text-[#d95800] hover:underline font-bold">Điều khoản sử dụng</a> và <a href="#" class="text-[#d95800] hover:underline font-bold">Chính sách bảo mật</a> của WarrantyOps.
+                </span>
+              </div>
+
+              <!-- Nút Tạo tài khoản -->
+              <button type="submit"
+                class="w-full bg-[#d95800] hover:bg-[#ea580c] text-white font-bold text-sm py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer mt-3">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="8.5" cy="7" r="4"></circle>
+                  <line x1="20" y1="8" x2="20" y2="14"></line>
+                  <line x1="23" y1="11" x2="17" y2="11"></line>
+                </svg>
+                <span>Đăng ký tài khoản</span>
+              </button>
+
+            </form>
+
+            <!-- Đường phân cách hoặc tiếp tục với -->
+            <div class="relative my-5 text-center">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-slate-200"></div>
+              </div>
+              <span class="relative bg-white px-3 text-xs text-slate-400 font-medium">Hoặc đăng ký nhanh với</span>
+            </div>
+
+            <!-- Nút Social Login -->
+            <div class="grid grid-cols-2 gap-3">
+              <button type="button" onclick="alert('Đang kết nối tài khoản Google...')"
+                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-bold text-slate-700 cursor-pointer shadow-xs">
+                <svg width="15" height="15" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                  <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"/>
+                  <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                  <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                </svg>
+                <span>Google</span>
+              </button>
+
+              <button type="button" onclick="alert('Đang kết nối Apple ID...')"
+                class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-xs font-bold text-slate-700 cursor-pointer shadow-xs">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.64 1.35-.57.65-1.06 1.7-0.93 2.73 1 .08 2.03-.48 2.65-1.23z"/>
+                </svg>
+                <span>Apple</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ĐIỀU KHIỂN CHUYỂN TAB VÀ HIỆN MẬT KHẨU -->
+  <script>
+    function switchAuthTab(tab) {
+      const loginTabBtn = document.getElementById('tabLoginBtn');
+      const regTabBtn = document.getElementById('tabRegisterBtn');
+      const loginContainer = document.getElementById('loginFormContainer');
+      const regContainer = document.getElementById('registerFormContainer');
+
+      if (tab === 'login') {
+        // Tab 1 Active (#7A3000)
+        loginTabBtn.className = 'flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer bg-[#7A3000] text-white shadow-xs';
+        regTabBtn.className = 'flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer bg-white text-slate-600 hover:text-slate-900 border border-slate-200';
+        loginContainer.classList.remove('hidden');
+        regContainer.classList.add('hidden');
+      } else {
+        // Tab 2 Active (#7A3000)
+        regTabBtn.className = 'flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer bg-[#7A3000] text-white shadow-xs';
+        loginTabBtn.className = 'flex-1 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer bg-white text-slate-600 hover:text-slate-900 border border-slate-200';
+        regContainer.classList.remove('hidden');
+        loginContainer.classList.add('hidden');
+      }
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+          </svg>
+        `;
+      } else {
+        input.type = 'password';
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        `;
+      }
+    }
+  </script>
+
+</body>
+
+</html>
+

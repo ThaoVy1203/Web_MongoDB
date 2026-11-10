@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Hồ sơ Khách hàng - Trần Hoàng Nam (KH-10294) - EXED OPS ADMIN</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ff6b00",
+            "primary-dark": "#e05800",
+            "primary-light": "#fff7ed",
+            "topbar-dark": "#2a1212",
+            "sidebar-active-bg": "#fbeee6",
+            "sidebar-active-text": "#8B2500"
+          },
+          fontFamily: {
+            "sans": ["Plus Jakarta Sans", "Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @layer base {
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+    }
+
+    /* Tùy chỉnh thanh cuộn mảnh */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#111315] antialiased min-h-screen flex flex-col selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
+
+  <!-- ==============================================
+       1. TOP HEADER TOÀN MÀN HÌNH (DARK BURGUNDY #2a1212)
+  ============================================== -->
+  <header class="h-20 bg-[#2a1212] text-white sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between border-b border-black/30 shadow-xs">
+    
+    <!-- Phía trái: Logo11 nhỏ gọn + Badge ADMIN -->
+    <div class="flex items-center gap-3">
+      <!-- Nút mở drawer trên mobile -->
+      <button type="button" onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white p-1.5 mr-1 cursor-pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/admin" class="flex items-center group py-1">
+        <img src="/images/logo11.png" alt="WarrantyOps Logo" class="h-10 sm:h-11 object-contain transition-transform group-hover:scale-105"
+          onerror="this.onerror=null; this.src='/images/logo1.png';">
+      </a>
+
+      <span class="bg-black/40 text-white/90 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 tracking-wider uppercase ml-1 shadow-2xs">
+        ADMIN
+      </span>
+    </div>
+
+    <!-- Phía phải: Chuông thông báo + Profile Admin01 -->
+    <div class="flex items-center gap-4 sm:gap-5">
+      
+      <!-- Chuông thông báo có chấm cam -->
+      <button type="button" onclick="alert('Không có vi phạm SLA nào trong hồ sơ khách hàng này!')"
+        class="relative text-white/80 hover:text-white transition-colors p-1" title="Thông báo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+      </button>
+
+      <!-- Profile admin01 -->
+      <div class="flex items-center gap-2 text-white/90 text-xs font-bold cursor-pointer hover:text-white transition-colors">
+        <div class="w-7 h-7 rounded-full bg-[#ff6b00]/25 text-[#ff6b00] border border-[#ff6b00]/40 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span>admin01</span>
+      </div>
+
+    </div>
+
+  </header>
+
+  <!-- ==============================================
+       CONTAINER DƯỚI TOPBAR: SIDEBAR + MAIN CONTENT
+  ============================================== -->
+  <div class="flex-1 flex min-h-[calc(100vh-5rem)] relative">
+
+    <!-- ==============================================
+         2. SIDEBAR TRÁI (WHITE THEME / ĐỒNG BỘ DASHBOARD)
+    ============================================== -->
+    <aside id="adminSidebar"
+      class="w-60 lg:w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between fixed lg:sticky top-20 bottom-0 left-0 z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0 h-[calc(100vh-5rem)] overflow-y-auto">
+      
+      <!-- Danh sách menu điều hướng -->
+      <div class="p-3.5 sm:p-4">
+        
+        <nav class="space-y-1">
+          
+          <!-- 1. Tổng quan (Dashboard) -->
+          <a href="/admin"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Tổng quan (Dashboard)</span>
+          </a>
+
+          <!-- 2. Quản lý khách hàng - ACTIVE (Đồng bộ kiểu Dashboard: Nền cam nhạt #fbeee6, Chữ nâu đỏ #8B2500) -->
+          <a href="/admin/khach-hang"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#fbeee6] text-[#8B2500] font-extrabold text-xs transition-all shadow-2xs">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Quản lý khách hàng</span>
+            </div>
+            <span class="bg-[#8B2500]/10 text-[#8B2500] font-bold text-[10px] px-1.5 py-0.5 rounded">1.4k</span>
+          </a>
+
+          <!-- 3. Quản lý sản phẩm -->
+          <a href="/admin/san-pham"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span>Quản lý sản phẩm</span>
+          </a>
+
+          <!-- 4. Hồ sơ bảo hành -->
+          <a href="/admin/ho-so-bao-hanh"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Hồ sơ bảo hành</span>
+          </a>
+
+          <!-- 5. Yêu cầu & Xử lý phiếu (Chấm cam nhấp nháy) -->
+          <a href="/admin/yeu-cau-bao-hanh"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="13" x2="13" y2="13"></line>
+              </svg>
+              <span>Yêu cầu & Xử lý phiếu</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#ff6b00] ring-4 ring-[#ff6b00]/20 animate-pulse"></span>
+          </a>
+
+          <!-- 6. Thống kê & Báo cáo -->
+          <a href="/admin/thong-ke"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Thống kê & Báo cáo</span>
+          </a>
+
+        </nav>
+
+      </div>
+
+      <!-- Khối chân Sidebar: Trạng thái MongoDB & Ngôn ngữ -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50 space-y-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-mono text-slate-600">MongoDB v7.0 • Online</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/60">
+          <span class="hover:text-slate-600 cursor-pointer">⚙ Cấu hình</span>
+          <span class="font-bold text-slate-500 hover:text-slate-700 cursor-pointer">🌐 VN</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Overlay đóng sidebar trên mobile -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+    <!-- ==============================================
+         3. KHÔNG GIAN NỘI DUNG CHÍNH (HỒ SƠ KHÁCH HÀNG)
+    ============================================== -->
+    <main class="flex-1 w-full p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto overflow-x-hidden">
+
+      <!-- ==============================================
+           A. NÚT QUAY LẠI DANH SÁCH (TOP ACTION)
+      ============================================== -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <a href="/admin" class="hover:text-slate-800 transition-colors">Admin</a>
+          <span>/</span>
+          <a href="/admin/khach-hang" class="hover:text-slate-800 transition-colors">Quản lý khách hàng</a>
+          <span>/</span>
+          <span class="text-slate-900 font-bold">Hồ sơ #KH-10294</span>
+        </div>
+
+        <a href="/admin/khach-hang"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white border border-slate-200/90 hover:border-slate-300 text-slate-600 hover:text-slate-900 font-semibold text-xs shadow-2xs hover:shadow-xs transition-all cursor-pointer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Quay lại danh sách</span>
+        </a>
+      </div>
+
+      <!-- ==============================================
+           B. CARD HỒ SƠ KHÁCH HÀNG (CUSTOMER PROFILE CARD)
+      ============================================== -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        
+        <!-- Cụm thông tin khách hàng (Avatar + Tên + Liên hệ) -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 flex-1 min-w-0">
+          
+          <!-- Avatar có badge cam tròn nhỏ góc dưới -->
+          <div class="relative flex-shrink-0">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border border-slate-200 shadow-2xs bg-slate-100">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces"
+                alt="Trần Hoàng Nam" class="w-full h-full object-cover">
+            </div>
+            <!-- Chấm cam định danh góc phải avatar -->
+            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#ff6b00] border-2 border-white flex items-center justify-center text-white shadow-2xs"
+              title="Đã xác thực danh tính điện tử">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Chi tiết hồ sơ -->
+          <div class="space-y-1.5 min-w-0 flex-1">
+            
+            <!-- Tên + Badge VIP Enterprise -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <h1 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight" id="profileName">
+                Trần Hoàng Nam
+              </h1>
+              
+              <!-- Badge VIP Enterprise: Nền đen chữ vàng -->
+              <span class="inline-flex items-center gap-1 bg-[#18181b] text-amber-300 border border-amber-400/40 text-[10.5px] font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider shadow-2xs">
+                ★ VIP ENTERPRISE
+              </span>
+            </div>
+
+            <!-- Hạng thành viên + Mã KH + CCCD + Ngày tham gia -->
+            <div class="flex items-center gap-3 text-xs flex-wrap">
+              <span class="inline-block bg-slate-100 text-slate-700 font-black text-[10px] px-2 py-0.5 rounded border border-slate-200">
+                HẠNG A+
+              </span>
+              <span class="font-mono font-bold text-slate-600 text-xs">
+                MÃ KH: <span class="text-slate-900">KH-10294</span>
+              </span>
+              <span class="text-slate-300">•</span>
+              <span class="font-mono text-slate-500 text-xs">
+                CCCD: 00109400****
+              </span>
+              <span class="text-slate-300">•</span>
+              <span class="text-slate-500 text-xs">
+                THAM GIA: 15/03/2023
+              </span>
+            </div>
+
+            <!-- Liên hệ (SĐT & Email) -->
+            <div class="flex items-center gap-4 text-xs font-medium text-slate-600 flex-wrap pt-0.5">
+              <div class="flex items-center gap-1.5 text-slate-700 font-semibold">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-slate-400">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                <span id="profilePhone">0912.345.678</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 text-slate-600">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="text-slate-400">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                <span id="profileEmail">nam.tran@email.com</span>
+              </div>
+            </div>
+
+            <!-- Địa chỉ -->
+            <div class="flex items-center gap-1.5 text-xs text-slate-500 pt-0.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400 flex-shrink-0">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+              <span id="profileAddress">Số 45 Dịch Vọng Hậu, Cầu Giấy, Hà Nội</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Cụm nút hành động bên phải -->
+        <div class="flex flex-col sm:flex-row lg:flex-col items-stretch lg:items-end gap-2.5 flex-shrink-0">
+          
+          <div class="flex items-center gap-2">
+            <!-- Nút Chỉnh sửa hồ sơ (Cam đặc) -->
+            <button type="button" onclick="openEditProfileModal()"
+              class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 flex-1 sm:flex-initial">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+              <span>Chỉnh sửa hồ sơ</span>
+            </button>
+
+            <!-- Nút Tạo phiếu bảo hành (Nền cam nhạt viền cam) -->
+            <button type="button" onclick="openCreateTicketModal('Trần Hoàng Nam', '0912.345.678')"
+              class="bg-[#fff4ec] hover:bg-[#ffe8d9] text-[#ea580c] border border-[#fed7aa] text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl shadow-2xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 flex-1 sm:flex-initial">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="16"></line>
+                <line x1="8" y1="12" x2="16" y2="12"></line>
+              </svg>
+              <span>Tạo phiếu bảo hành</span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 justify-end">
+            <!-- Nút Xuất thẻ -->
+            <button type="button" onclick="printVipCard()"
+              class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold px-3.5 py-2 rounded-xl shadow-2xs flex items-center gap-1.5 cursor-pointer transition-all">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              <span>Xuất thẻ</span>
+            </button>
+
+            <!-- Nút Khóa / Bảo mật -->
+            <button type="button" onclick="toggleLockAccount()"
+              class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 text-xs font-semibold p-2 rounded-xl shadow-2xs cursor-pointer transition-all"
+              title="Khóa bảo mật hồ sơ">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           C. LƯỚI NỘI DUNG 2 CỘT (LEFT: 8 COLS, RIGHT: 4 COLS)
+      ============================================== -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- ============================================
+             C1. CỘT TRÁI (8 COLS: SẢN PHẨM & PHIẾU BẢO HÀNH)
+        ============================================ -->
+        <div class="lg:col-span-8 space-y-6">
+
+          <!-- ============================================
+               KHỐI 1: SẢN PHẨM ĐÃ ĐĂNG KÝ BẢO HÀNH
+          ============================================ -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+            
+            <!-- Tiêu đề khối + Bộ lọc & Số lượng -->
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-1.5 h-6 bg-[#ff6b00] rounded-full inline-block"></span>
+                <div>
+                  <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    Sản phẩm đã đăng ký bảo hành
+                  </h2>
+                  <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                    Danh sách khí tài công nghệ & phần cứng liên kết hợp đồng hỗ trợ
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-full border border-slate-200/70">
+                  3 thiết bị
+                </span>
+                <button type="button" onclick="alert('Đang hiển thị toàn bộ thiết bị đang lưu trữ trong cơ sở dữ liệu!')"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1 rounded-lg border border-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                  </svg>
+                  <span>Lọc</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- DANH SÁCH 3 THIẾT BỊ -->
+            <div class="space-y-4 pt-4">
+
+              <!-- THIẾT BỊ 1: Dell Latitude 7440 Ultrabook (Còn hạn) -->
+              <div class="bg-[#fafafb] hover:bg-slate-50/90 rounded-2xl border border-slate-200/80 p-4 sm:p-5 transition-all shadow-2xs">
+                
+                <!-- Hàng trên: Icon + Tên + Serial/Gói + Nút Tạo phiếu -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-slate-200/60">
+                  
+                  <div class="flex items-start sm:items-center gap-3.5">
+                    <!-- Icon laptop -->
+                    <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                      </svg>
+                    </div>
+
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">
+                          Dell Latitude 7440 Ultrabook
+                        </h3>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Còn hạn
+                        </span>
+                      </div>
+
+                      <div class="flex items-center gap-3 text-xs mt-1 text-slate-500 flex-wrap">
+                        <span class="font-mono text-slate-600 font-semibold">
+                          Serial: <span class="text-slate-800">SN-DL74-98214-VN</span>
+                        </span>
+                        <span class="text-slate-300">•</span>
+                        <span>Gói: <strong class="text-slate-800 font-bold">ProSupport Plus 36 tháng</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Nút hành động bên phải -->
+                  <div class="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                    <button type="button" onclick="openCreateTicketModal('Trần Hoàng Nam', '0912.345.678', 'Dell Latitude 7440 Ultrabook', 'SN-DL74-98214-VN')"
+                      class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      </svg>
+                      <span>Tạo phiếu BH</span>
+                    </button>
+
+                    <button type="button" onclick="alert('Đang mở chi tiết hợp đồng bảo hành thiết bị Dell Latitude 7440 Ultrabook...')"
+                      class="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+
+                </div>
+
+                <!-- Hàng dưới: 4 Cột thông số ngày tháng & hạn bảo hành -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 text-[11px]">
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">NGÀY KÍCH HOẠT</span>
+                    <span class="font-bold text-slate-800 text-xs mt-0.5 block">15/03/2023</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">NGÀY HẾT HẠN</span>
+                    <span class="font-bold text-slate-800 text-xs mt-0.5 block">15/03/2026</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">THỜI HẠN CÒN LẠI</span>
+                    <span class="font-extrabold text-emerald-600 text-xs mt-0.5 block">745 ngày (~2 năm)</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">LỊCH SỬ CAN THIỆP</span>
+                    <span class="font-semibold text-slate-700 text-xs mt-0.5 block">01 lần thay linh kiện</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- THIẾT BỊ 2: Màn hình Dell UltraSharp U2723QE 4K (Còn hạn) -->
+              <div class="bg-[#fafafb] hover:bg-slate-50/90 rounded-2xl border border-slate-200/80 p-4 sm:p-5 transition-all shadow-2xs">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-slate-200/60">
+                  
+                  <div class="flex items-start sm:items-center gap-3.5">
+                    <!-- Icon màn hình -->
+                    <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                      </svg>
+                    </div>
+
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">
+                          Màn hình Dell UltraSharp U2723QE 4K
+                        </h3>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Còn hạn
+                        </span>
+                      </div>
+
+                      <div class="flex items-center gap-3 text-xs mt-1 text-slate-500 flex-wrap">
+                        <span class="font-mono text-slate-600 font-semibold">
+                          Serial: <span class="text-slate-800">SN-DU27-44819-VN</span>
+                        </span>
+                        <span class="text-slate-300">•</span>
+                        <span>Gói: <strong class="text-slate-800 font-bold">Tiêu chuẩn 36 tháng</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                    <button type="button" onclick="openCreateTicketModal('Trần Hoàng Nam', '0912.345.678', 'Dell UltraSharp U2723QE', 'SN-DU27-44819-VN')"
+                      class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                      </svg>
+                      <span>Tạo phiếu BH</span>
+                    </button>
+
+                    <button type="button" onclick="alert('Đang mở chi tiết thiết bị Màn hình Dell UltraSharp U2723QE 4K...')"
+                      class="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 text-[11px]">
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">NGÀY KÍCH HOẠT</span>
+                    <span class="font-bold text-slate-800 text-xs mt-0.5 block">18/06/2023</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">NGÀY HẾT HẠN</span>
+                    <span class="font-bold text-slate-800 text-xs mt-0.5 block">18/06/2026</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">THỜI HẠN CÒN LẠI</span>
+                    <span class="font-extrabold text-emerald-600 text-xs mt-0.5 block">839 ngày</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">LỊCH SỬ CAN THIỆP</span>
+                    <span class="font-semibold text-slate-700 text-xs mt-0.5 block">01 lần cân màu/panel</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- THIẾT BỊ 3: Bàn phím cơ Leopold FC900R Blue Switch (Hết hạn) -->
+              <div class="bg-[#fafafb] hover:bg-slate-50/90 rounded-2xl border border-slate-200/80 p-4 sm:p-5 transition-all shadow-2xs">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3.5 border-b border-slate-200/60">
+                  
+                  <div class="flex items-start sm:items-center gap-3.5">
+                    <!-- Icon bàn phím -->
+                    <div class="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                        <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M6 12h.001M10 12h.001M14 12h.001M18 12h.001M8 16h8"></path>
+                      </svg>
+                    </div>
+
+                    <div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">
+                          Bàn phím cơ Leopold FC900R Blue Switch
+                        </h3>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200">
+                          <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Hết hạn (Quá hạn 65 ngày)
+                        </span>
+                      </div>
+
+                      <div class="flex items-center gap-3 text-xs mt-1 text-slate-500 flex-wrap">
+                        <span class="font-mono text-slate-600 font-semibold">
+                          Serial: <span class="text-slate-800">SN-LP90-11209-KR</span>
+                        </span>
+                        <span class="text-slate-300">•</span>
+                        <span>Gói: <strong class="text-slate-800 font-bold">Gói bán lẻ tiêu chuẩn</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+                    <button type="button" onclick="alert('Đang mở quy trình tư vấn Gia hạn Hợp đồng Dịch vụ Bảo hành cho thiết bị này!')"
+                      class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all cursor-pointer">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                      </svg>
+                      <span>Gia hạn gói BH</span>
+                    </button>
+
+                    <button type="button" onclick="alert('Đang mở chi tiết thiết bị Bàn phím cơ Leopold FC900R Blue Switch...')"
+                      class="w-8 h-8 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 text-[11px]">
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">NGÀY KÍCH HOẠT</span>
+                    <span class="font-bold text-slate-800 text-xs mt-0.5 block">18/01/2022</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">NGÀY HẾT HẠN</span>
+                    <span class="font-bold text-rose-600 text-xs mt-0.5 block">19/01/2024</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">TRẠNG THÁI HỖ TRỢ</span>
+                    <span class="font-bold text-rose-600 text-xs mt-0.5 block">Tính phí dịch vụ ngoài</span>
+                  </div>
+                  <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">KHUYẾN NGHỊ KỸ THUẬT</span>
+                    <span class="font-semibold text-amber-700 text-xs mt-0.5 block">Chuyển sang gói bảo dưỡng</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- ============================================
+               KHỐI 2: LỊCH SỬ YÊU CẦU & PHIẾU BẢO HÀNH (2)
+          ============================================ -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-1.5 h-6 bg-slate-800 rounded-full inline-block"></span>
+                <div>
+                  <h2 class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                    Lịch sử yêu cầu & Phiếu bảo hành (2)
+                  </h2>
+                  <p class="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+                    Các tác vụ kỹ thuật đã mở, xử lý và nghiệm thu linh kiện
+                  </p>
+                </div>
+              </div>
+
+              <a href="/theo-doi" class="text-xs font-bold text-slate-600 hover:text-[#ff6b00] flex items-center gap-1 transition-colors">
+                <span>Tất cả phiếu</span>
+                <span>→</span>
+              </a>
+            </div>
+
+            <div class="space-y-3.5 pt-4">
+
+              <!-- PHIẾU 1: #PBH-9410 -->
+              <div class="bg-[#fafafb] hover:bg-slate-50/90 rounded-2xl border border-slate-200/80 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all shadow-2xs">
+                
+                <div class="space-y-1.5 flex-1 min-w-0">
+                  <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="w-5 h-5 rounded-md bg-amber-500/15 text-amber-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      ✓
+                    </span>
+                    <span class="font-mono font-black text-slate-900 text-sm">
+                      #PBH-9410
+                    </span>
+                    <span class="font-bold text-slate-800 text-sm">
+                      Thay pin laptop sạc không vào
+                    </span>
+                    <span class="bg-[#fffbeb] text-[#b45309] border border-[#fde68a] text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      Đã hoàn thành
+                    </span>
+                  </div>
+
+                  <div class="text-xs text-slate-500 flex items-center gap-3 flex-wrap">
+                    <span>Thiết bị: <strong class="text-slate-800">Dell Latitude 7440 Ultrabook</strong></span>
+                    <span class="text-slate-300">•</span>
+                    <span>Ngày xử lý: <strong class="text-slate-700">05/01/2024</strong></span>
+                  </div>
+
+                  <div class="text-xs text-slate-500">
+                    Kỹ thuật viên: <span class="font-semibold text-slate-800">Vũ Quang Huy (KTV-04)</span>
+                  </div>
+                </div>
+
+                <div class="flex-shrink-0 self-end sm:self-auto">
+                  <button type="button" onclick="viewHandoverReceipt('PBH-9410', 'Thay cell pin Lithium Polymer 54Wh', 'Dell Latitude 7440 Ultrabook', '05/01/2024', 'Vũ Quang Huy', 'Đã nghiệm thu')"
+                    class="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Biên bản bàn giao</span>
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- PHIẾU 2: #PBH-8821 -->
+              <div class="bg-[#fafafb] hover:bg-slate-50/90 rounded-2xl border border-slate-200/80 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all shadow-2xs">
+                
+                <div class="space-y-1.5 flex-1 min-w-0">
+                  <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="w-5 h-5 rounded-md bg-amber-500/15 text-amber-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                      ✓
+                    </span>
+                    <span class="font-mono font-black text-slate-900 text-sm">
+                      #PBH-8821
+                    </span>
+                    <span class="font-bold text-slate-800 text-sm">
+                      Lỗi màn hình nhấp nháy, flicker cổng Type-C
+                    </span>
+                    <span class="bg-[#fffbeb] text-[#b45309] border border-[#fde68a] text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      Đã hoàn thành
+                    </span>
+                  </div>
+
+                  <div class="text-xs text-slate-500 flex items-center gap-3 flex-wrap">
+                    <span>Thiết bị: <strong class="text-slate-800">Dell UltraSharp U2723QE</strong></span>
+                    <span class="text-slate-300">•</span>
+                    <span>Ngày xử lý: <strong class="text-slate-700">12/10/2023</strong></span>
+                  </div>
+
+                  <div class="text-xs text-slate-500">
+                    Kỹ thuật viên: <span class="font-semibold text-slate-800">Lê Minh Trí (Lead Tech)</span>
+                  </div>
+                </div>
+
+                <div class="flex-shrink-0 self-end sm:self-auto">
+                  <button type="button" onclick="viewHandoverReceipt('PBH-8821', 'Nâng cấp Firmware M2T103 & cấp cáp Thunderbolt 4 mới', 'Dell UltraSharp U2723QE', '12/10/2023', 'Lê Minh Trí', 'Đã nghiệm thu')"
+                    class="bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Biên bản bàn giao</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ============================================
+             C2. CỘT PHẢI (4 COLS: GHI CHÚ, AUDIT, CHUYÊN VIÊN)
+        ============================================ -->
+        <div class="lg:col-span-4 space-y-6">
+
+          <!-- ============================================
+               WIDGET 1: GHI CHÚ NỘI BỘ CSKH
+          ============================================ -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
+            
+            <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-orange-50 text-[#ff6b00] flex items-center justify-center font-bold">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <h3 class="font-extrabold text-slate-900 text-sm">
+                  Ghi chú nội bộ CSKH
+                </h3>
+              </div>
+              <span class="text-[9.5px] uppercase font-black tracking-wider text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded">
+                BẢO MẬT NỘI BỘ
+              </span>
+            </div>
+
+            <!-- Danh sách các ghi chú -->
+            <div id="notesContainer" class="space-y-4 pt-3.5 text-xs">
+
+              <!-- Ghi chú 1 -->
+              <div class="border-l-2 border-slate-300 pl-3 space-y-1">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="font-bold text-slate-900">Admin01 (Điều phối)</span>
+                  <span class="text-slate-400 font-mono text-[10.5px]">06/01/2024 • 14:32</span>
+                </div>
+                <p class="text-slate-600 leading-relaxed text-[11.5px]">
+                  Khách hàng phản hồi rất hài lòng với tốc độ thay cell pin bảo hành của phiếu <span class="font-mono font-bold text-slate-800">#PBH-9410</span>. Khách chuẩn bị mua thêm cụm dock Dell WD22TB4 cho văn phòng đại diện. Ưu tiên hỗ trợ kỹ thuật viên cấp Lead khi có yêu cầu.
+                </p>
+              </div>
+
+              <!-- Ghi chú 2 -->
+              <div class="border-l-2 border-slate-300 pl-3 space-y-1">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="font-bold text-slate-900">KTV Lê Minh Trí</span>
+                  <span class="text-slate-400 font-mono text-[10.5px]">13/10/2023 • 09:15</span>
+                </div>
+                <p class="text-slate-600 leading-relaxed text-[11.5px]">
+                  Màn hình U2723QE đã được update firmware M2T103 mới nhất và test tải 8h liên tục. Bàn giao kèm cáp Thunderbolt chính hãng thay thế miễn phí.
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Ô thêm ghi chú mới -->
+            <div class="pt-4 mt-4 border-t border-slate-100">
+              <label for="newNoteInput" class="text-[10px] uppercase font-black text-slate-400 tracking-wider block mb-2">
+                THÊM GHI CHÚ TƯƠNG TÁC MỚI
+              </label>
+              <textarea id="newNoteInput" rows="3"
+                placeholder="Nhập tóm tắt trao đổi hoặc yêu cầu đặc biệt..."
+                class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all resize-none"></textarea>
+              
+              <div class="flex justify-end mt-2">
+                <button type="button" onclick="handleAddNote()"
+                  class="bg-[#1e293b] hover:bg-[#0f172a] text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95">
+                  <span>►</span>
+                  <span>Lưu ghi chú</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ============================================
+               WIDGET 2: NHẬT KÝ HỆ THỐNG (AUDIT TRAIL)
+          ============================================ -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5">
+            
+            <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+                <h3 class="font-extrabold text-slate-900 text-sm">
+                  Nhật ký hệ thống
+                </h3>
+              </div>
+              <span class="text-[10px] font-mono font-bold text-slate-400 tracking-wider">
+                AUDIT TRAIL
+              </span>
+            </div>
+
+            <!-- Dòng thời gian Timeline -->
+            <div class="relative pl-6 space-y-4 pt-4 before:absolute before:left-2 before:top-5 before:bottom-3 before:w-0.5 before:bg-slate-200 text-xs">
+              
+              <!-- Mục 1: Đóng phiếu (Chấm cam) -->
+              <div class="relative">
+                <span class="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-[#ff6b00] ring-4 ring-[#ff6b00]/20"></span>
+                <div>
+                  <h4 class="font-bold text-slate-900 text-xs">
+                    Đóng phiếu #PBH-9410 thành công
+                  </h4>
+                  <p class="text-slate-500 text-[11px] mt-0.5">
+                    Nghiệm thu phần cứng & gửi biên bản điện tử
+                  </p>
+                  <span class="font-mono text-[10px] text-slate-400 mt-0.5 block">
+                    05/01/2024 16:45:12
+                  </span>
+                </div>
+              </div>
+
+              <!-- Mục 2: Khởi tạo phiếu -->
+              <div class="relative">
+                <span class="absolute -left-6 top-1 w-2 h-2 rounded-full bg-slate-300"></span>
+                <div>
+                  <h4 class="font-bold text-slate-800 text-xs">
+                    Khởi tạo phiếu sửa chữa #PBH-9410
+                  </h4>
+                  <p class="text-slate-500 text-[11px] mt-0.5">
+                    Tiếp nhận yêu cầu báo hỏng pin Ultrabook
+                  </p>
+                  <span class="font-mono text-[10px] text-slate-400 mt-0.5 block">
+                    04/01/2024 09:12:08
+                  </span>
+                </div>
+              </div>
+
+              <!-- Mục 3: Gửi thông báo hết hạn -->
+              <div class="relative">
+                <span class="absolute -left-6 top-1 w-2 h-2 rounded-full bg-slate-300"></span>
+                <div>
+                  <h4 class="font-bold text-slate-800 text-xs">
+                    Gửi thông báo hết hạn bảo hành Leopold
+                  </h4>
+                  <p class="text-slate-500 text-[11px] mt-0.5">
+                    Hệ thống kích hoạt email nhắc gia hạn tự động
+                  </p>
+                  <span class="font-mono text-[10px] text-slate-400 mt-0.5 block">
+                    18/01/2024 08:00:00
+                  </span>
+                </div>
+              </div>
+
+              <!-- Mục 4: Kích hoạt hồ sơ VIP Enterprise -->
+              <div class="relative">
+                <span class="absolute -left-6 top-1 w-2 h-2 rounded-full bg-slate-300"></span>
+                <div>
+                  <h4 class="font-bold text-slate-800 text-xs">
+                    Kích hoạt hồ sơ VIP Enterprise
+                  </h4>
+                  <p class="text-slate-500 text-[11px] mt-0.5">
+                    Nâng cấp từ tài khoản Standard sau kiểm định
+                  </p>
+                  <span class="font-mono text-[10px] text-slate-400 mt-0.5 block">
+                    15/03/2023 10:20:44
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Nút xem thêm audit -->
+            <button type="button" onclick="alert('Đang truy xuất toàn bộ 14 bản ghi Audit Trail từ MongoDB Log Database...')"
+              class="w-full text-center text-xs font-bold text-slate-500 hover:text-slate-800 pt-3 mt-3 border-t border-slate-100 block transition-colors cursor-pointer">
+              Xem toàn bộ 14 bản ghi audit ∨
+            </button>
+
+          </div>
+
+          <!-- ============================================
+               WIDGET 3: CHUYÊN VIÊN PHỤ TRÁCH TRỰC TIẾP
+          ============================================ -->
+          <div class="bg-[#fff8f3] border border-[#ffedd5] rounded-2xl p-4 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-[#ff6b00]/15 text-[#ff6b00] border border-[#ff6b00]/30 flex items-center justify-center font-bold flex-shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <div>
+                <span class="text-[9.5px] uppercase font-bold text-slate-500 tracking-wider block">
+                  Chuyên viên phụ trách trực tiếp
+                </span>
+                <h4 class="font-bold text-slate-900 text-xs mt-0.5">
+                  Nguyễn Hoàng Long (Ext: 104)
+                </h4>
+              </div>
+            </div>
+
+            <button type="button" onclick="alert('Đang kết nối tổng đài nội bộ tới Chuyên viên Nguyễn Hoàng Long (Ext: 104)...')"
+              class="w-8 h-8 rounded-full bg-white border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center hover:bg-[#ff6b00] hover:text-white transition-all shadow-2xs cursor-pointer"
+              title="Gọi hotline nội bộ">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ==============================================
+       MODAL 1: CHỈNH SỬA HỒ SƠ KHÁCH HÀNG
+  ============================================== -->
+  <div id="editProfileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base">Chỉnh sửa hồ sơ khách hàng</h3>
+        <button type="button" onclick="closeModal('editProfileModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <form id="editProfileForm" onsubmit="handleSaveProfile(event)" class="space-y-4 pt-4 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Họ và tên</label>
+          <input type="text" id="editName" value="Trần Hoàng Nam" required
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Số điện thoại</label>
+            <input type="tel" id="editPhone" value="0912.345.678" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Email</label>
+            <input type="email" id="editEmail" value="nam.tran@email.com" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Địa chỉ thường trú</label>
+          <input type="text" id="editAddress" value="Số 45 Dịch Vọng Hậu, Cầu Giấy, Hà Nội" required
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Hạng thành viên</label>
+            <select id="editRank"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="VIP Enterprise" selected>★ VIP Enterprise</option>
+              <option value="Đại lý ủy quyền">Đại lý ủy quyền</option>
+              <option value="Khách hàng Cá nhân">Khách hàng Cá nhân</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Trạng thái hồ sơ</label>
+            <select id="editStatus"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="Hoạt động" selected>Kích hoạt / Bình thường</option>
+              <option value="Tạm khóa">Tạm khóa tài khoản</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('editProfileModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-[#ff6b00] hover:bg-[#e05800] text-white font-bold cursor-pointer transition-all active:scale-95 shadow-xs">
+            Lưu thay đổi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 2: TẠO PHIẾU BẢO HÀNH NHANH CHO KHÁCH
+  ============================================== -->
+  <div id="createTicketModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-black text-slate-900 text-base">Tạo phiếu yêu cầu bảo hành</h3>
+          <p id="ticketCustomerSub" class="text-xs text-slate-500 mt-0.5">Khách hàng: Trần Hoàng Nam</p>
+        </div>
+        <button type="button" onclick="closeModal('createTicketModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <form onsubmit="handleQuickTicket(event)" class="space-y-4 pt-4 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Khách hàng yêu cầu</label>
+          <input type="text" id="ticketCustName" value="Trần Hoàng Nam - 0912.345.678" readonly
+            class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-slate-600 font-semibold cursor-not-allowed">
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Chọn thiết bị sở hữu</label>
+          <select id="ticketDeviceSelect"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+            <option value="Dell Latitude 7440 Ultrabook - SN-DL74-98214-VN">Dell Latitude 7440 Ultrabook (SN-DL74-98214-VN)</option>
+            <option value="Màn hình Dell UltraSharp U2723QE 4K - SN-DU27-44819-VN">Màn hình Dell UltraSharp U2723QE 4K (SN-DU27-44819-VN)</option>
+            <option value="Bàn phím cơ Leopold FC900R Blue Switch - SN-LP90-11209-KR">Bàn phím cơ Leopold FC900R Blue Switch (Hết hạn)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Mô tả hiện tượng hỏng hóc / lỗi kỹ thuật</label>
+          <textarea id="ticketIssue" rows="3" required
+            placeholder="Ví dụ: Máy không nhận sạc Type-C, màn hình nhấp nháy khi cắm cổng HDMI..."
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-normal focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Mức độ ưu tiên SLA</label>
+            <select class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="urgent">Gấp / Khách VIP (Xử lý trong 4h)</option>
+              <option value="high">Ưu tiên cao (24h)</option>
+              <option value="normal">Tiêu chuẩn (48h)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Phân công kỹ thuật</label>
+            <select class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="Vũ Quang Huy">Vũ Quang Huy (KTV-04)</option>
+              <option value="Lê Minh Trí">Lê Minh Trí (Lead Tech)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('createTicketModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-[#ff6b00] hover:bg-[#e05800] text-white font-bold cursor-pointer transition-all active:scale-95 shadow-xs">
+            Khởi tạo phiếu ngay
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 3: BIÊN BẢN BÀN GIAO ĐIỆN TỬ
+  ============================================== -->
+  <div id="handoverModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="font-black text-slate-900 text-base" id="hoTitle">Biên bản bàn giao điện tử</h3>
+          <p class="text-[11px] text-slate-500 font-mono mt-0.5" id="hoCode">Mã phiếu: #PBH-9410</p>
+        </div>
+        <button type="button" onclick="closeModal('handoverModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-3.5 pt-4 text-xs">
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-slate-500">Khách hàng:</span>
+            <strong class="text-slate-800">Trần Hoàng Nam</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Thiết bị:</span>
+            <strong class="text-slate-800" id="hoDevice">Dell Latitude 7440</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Nội dung can thiệp:</span>
+            <span class="font-bold text-[#ff6b00]" id="hoContent">Thay cell pin 54Wh</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Kỹ thuật viên:</span>
+            <strong class="text-slate-800" id="hoTech">Vũ Quang Huy</strong>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-500">Ngày hoàn tất:</span>
+            <strong class="text-slate-800" id="hoDate">05/01/2024</strong>
+          </div>
+        </div>
+
+        <div class="p-3 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200 text-center font-bold text-xs">
+          ✓ Thiết bị đã qua kiểm định SLA & bàn giao đầy đủ cho khách hàng
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="window.print()"
+            class="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 cursor-pointer shadow-xs">
+            In biên bản (PDF)
+          </button>
+          <button type="button" onclick="closeModal('handoverModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 cursor-pointer">
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       4. JAVASCRIPT XỬ LÝ TƯƠNG TÁC GIAO DIỆN
+  ============================================== -->
+  <script>
+    // 1. Điều khiển Sidebar Mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('adminSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // 2. Mở / Đóng Modal
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // 3. Mở Modal Chỉnh sửa hồ sơ
+    function openEditProfileModal() {
+      openModal('editProfileModal');
+    }
+
+    function handleSaveProfile(e) {
+      e.preventDefault();
+      const name = document.getElementById('editName').value;
+      const phone = document.getElementById('editPhone').value;
+      const email = document.getElementById('editEmail').value;
+      const address = document.getElementById('editAddress').value;
+
+      document.getElementById('profileName').innerText = name;
+      document.getElementById('profilePhone').innerText = phone;
+      document.getElementById('profileEmail').innerText = email;
+      document.getElementById('profileAddress').innerText = address;
+
+      closeModal('editProfileModal');
+      alert(`Đã cập nhật thông tin hồ sơ cho khách hàng: ${name} thành công!`);
+    }
+
+    // 4. Mở Modal Tạo phiếu BH
+    function openCreateTicketModal(custName, custPhone, deviceName, serial) {
+      document.getElementById('ticketCustName').value = `${custName} - ${custPhone}`;
+      if (deviceName && serial) {
+        const select = document.getElementById('ticketDeviceSelect');
+        select.value = `${deviceName} - ${serial}`;
+      }
+      openModal('createTicketModal');
+    }
+
+    function handleQuickTicket(e) {
+      e.preventDefault();
+      const issue = document.getElementById('ticketIssue').value;
+      alert(`Tạo phiếu yêu cầu bảo hành thành công!\nNội dung lỗi: ${issue}\nPhiếu đã được thêm vào hệ thống và kỹ thuật viên tiếp nhận ngay.`);
+      closeModal('createTicketModal');
+    }
+
+    // 5. Xem biên bản bàn giao
+    function viewHandoverReceipt(code, content, device, date, tech, status) {
+      document.getElementById('hoTitle').innerText = `Biên bản bàn giao: #${code}`;
+      document.getElementById('hoCode').innerText = `Mã phiếu: #${code} (${status})`;
+      document.getElementById('hoDevice').innerText = device;
+      document.getElementById('hoContent').innerText = content;
+      document.getElementById('hoDate').innerText = date;
+      document.getElementById('hoTech').innerText = tech;
+      openModal('handoverModal');
+    }
+
+    // 6. Xuất thẻ VIP Warranty
+    function printVipCard() {
+      alert('Đang tạo và tải về mẫu Thẻ thành viên VIP Enterprise (PDF / Mã QR Code điện tử) cho khách hàng Trần Hoàng Nam...');
+    }
+
+    // 7. Khóa / Mở khóa hồ sơ
+    let isLocked = false;
+    function toggleLockAccount() {
+      isLocked = !isLocked;
+      if (isLocked) {
+        alert('Hồ sơ khách hàng KH-10294 đã được chuyển sang chế độ: TẠM KHÓA AN TOÀN.');
+      } else {
+        alert('Hồ sơ khách hàng KH-10294 đã được MỞ KHÓA HOẠT ĐỘNG BÌNH THƯỜNG.');
+      }
+    }
+
+    // 8. Thêm ghi chú mới
+    function handleAddNote() {
+      const input = document.getElementById('newNoteInput');
+      const text = input.value.trim();
+      if (!text) {
+        alert('Vui lòng nhập nội dung ghi chú tương tác!');
+        return;
+      }
+
+      const container = document.getElementById('notesContainer');
+      const now = new Date();
+      const timeStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth()+1).padStart(2, '0')}/${now.getFullYear()} • ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const noteDiv = document.createElement('div');
+      noteDiv.className = 'border-l-2 border-[#ff6b00] pl-3 space-y-1 bg-amber-50/30 p-2 rounded-r-xl';
+      noteDiv.innerHTML = `
+        <div class="flex items-center justify-between text-[11px]">
+          <span class="font-bold text-slate-900">Admin01 (Điều phối)</span>
+          <span class="text-slate-400 font-mono text-[10.5px]">${timeStr}</span>
+        </div>
+        <p class="text-slate-700 leading-relaxed text-[11.5px]">
+          ${text}
+        </p>
+      `;
+
+      container.insertBefore(noteDiv, container.firstChild);
+      input.value = '';
+      alert('Đã lưu ghi chú tương tác mới vào hồ sơ!');
+    }
+  </script>
+
+</body>
+
+</html>
+

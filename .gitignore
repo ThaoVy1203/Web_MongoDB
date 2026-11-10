@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Môi trường & cấu hình bảo mật
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+

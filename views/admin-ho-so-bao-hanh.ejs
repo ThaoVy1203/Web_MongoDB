@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Quản lý Hồ sơ Bảo hành - EXED OPS ADMIN</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ff6b00",
+            "primary-dark": "#e05800",
+            "primary-light": "#fff7ed",
+            "topbar-dark": "#2a1212",
+            "sidebar-active-bg": "#fbeee6",
+            "sidebar-active-text": "#8B2500"
+          },
+          fontFamily: {
+            "sans": ["Plus Jakarta Sans", "Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @layer base {
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+    }
+
+    /* Tùy chỉnh thanh cuộn mảnh */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#111315] antialiased min-h-screen flex flex-col selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
+
+  <!-- ==============================================
+       1. TOP HEADER TOÀN MÀN HÌNH (DARK BURGUNDY #2a1212)
+  ============================================== -->
+  <header class="h-20 bg-[#2a1212] text-white sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between border-b border-black/30 shadow-xs">
+    
+    <!-- Phía trái: Logo11 nhỏ gọn + Badge ADMIN -->
+    <div class="flex items-center gap-3">
+      <!-- Nút mở drawer trên mobile -->
+      <button type="button" onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white p-1.5 mr-1 cursor-pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/admin" class="flex items-center group py-1">
+        <img src="/images/logo11.png" alt="WarrantyOps Logo" class="h-10 sm:h-11 object-contain transition-transform group-hover:scale-105"
+          onerror="this.onerror=null; this.src='/images/logo1.png';">
+      </a>
+
+      <span class="bg-black/40 text-white/90 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 tracking-wider uppercase ml-1 shadow-2xs">
+        ADMIN
+      </span>
+    </div>
+
+    <!-- Phía phải: Chuông thông báo + Profile Admin01 -->
+    <div class="flex items-center gap-4 sm:gap-5">
+      
+      <!-- Chuông thông báo có chấm cam -->
+      <button type="button" onclick="alert('Có 1,238 hồ sơ bảo hành sắp hết hạn trong 30 ngày tới cần gửi thông báo nhắc gia hạn!')"
+        class="relative text-white/80 hover:text-white transition-colors p-1" title="Thông báo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+      </button>
+
+      <!-- Profile admin01 -->
+      <div class="flex items-center gap-2 text-white/90 text-xs font-bold cursor-pointer hover:text-white transition-colors">
+        <div class="w-7 h-7 rounded-full bg-[#ff6b00]/25 text-[#ff6b00] border border-[#ff6b00]/40 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span>admin01</span>
+      </div>
+
+    </div>
+
+  </header>
+
+  <!-- ==============================================
+       CONTAINER DƯỚI TOPBAR: SIDEBAR + MAIN CONTENT
+  ============================================== -->
+  <div class="flex-1 flex min-h-[calc(100vh-5rem)] relative">
+
+    <!-- ==============================================
+         2. SIDEBAR TRÁI (WHITE THEME / ĐỒNG BỘ DASHBOARD)
+    ============================================== -->
+    <aside id="adminSidebar"
+      class="w-60 lg:w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between fixed lg:sticky top-20 bottom-0 left-0 z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0 h-[calc(100vh-5rem)] overflow-y-auto">
+      
+      <!-- Danh sách menu điều hướng -->
+      <div class="p-3.5 sm:p-4">
+        
+        <nav class="space-y-1">
+          
+          <!-- 1. Tổng quan (Dashboard) -->
+          <a href="/admin"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Tổng quan (Dashboard)</span>
+          </a>
+
+          <!-- 2. Quản lý khách hàng (Badge 1.4k) -->
+          <a href="/admin/khach-hang"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Quản lý khách hàng</span>
+            </div>
+            <span class="bg-slate-100 text-slate-500 font-semibold text-[10px] px-1.5 py-0.5 rounded">1.4k</span>
+          </a>
+
+          <!-- 3. Quản lý sản phẩm -->
+          <a href="/admin/san-pham"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span>Quản lý sản phẩm</span>
+          </a>
+
+          <!-- 4. Hồ sơ bảo hành - ACTIVE (Đồng bộ kiểu Dashboard: Nền cam nhạt #fbeee6, Chữ nâu đỏ #8B2500) -->
+          <a href="/admin/ho-so-bao-hanh"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-[#fbeee6] text-[#8B2500] font-extrabold text-xs transition-all shadow-2xs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Hồ sơ bảo hành</span>
+          </a>
+
+          <!-- 5. Yêu cầu & Xử lý phiếu (Chấm cam nhấp nháy) -->
+          <a href="/admin/yeu-cau-bao-hanh"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="13" x2="13" y2="13"></line>
+              </svg>
+              <span>Yêu cầu & Xử lý phiếu</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#ff6b00] ring-4 ring-[#ff6b00]/20 animate-pulse"></span>
+          </a>
+
+          <!-- 6. Thống kê & Báo cáo -->
+          <a href="/admin/thong-ke"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Thống kê & Báo cáo</span>
+          </a>
+
+        </nav>
+
+      </div>
+
+      <!-- Khối chân Sidebar: Trạng thái MongoDB & Ngôn ngữ -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50 space-y-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-mono text-slate-600">MongoDB v7.0 • Online</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/60">
+          <span class="hover:text-slate-600 cursor-pointer">⚙ Cấu hình</span>
+          <span class="font-bold text-slate-500 hover:text-slate-700 cursor-pointer">🌐 VN</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Overlay đóng sidebar trên mobile -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+    <!-- ==============================================
+         3. KHÔNG GIAN NỘI DUNG CHÍNH (QUẢN LÝ HỒ SƠ BẢO HÀNH)
+    ============================================== -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-7 space-y-5 min-w-0">
+
+      <!-- ==============================================
+           A. HEADER TRANG: BỐ CỤC & KÍCH THƯỚC GIỐNG TRANG QUẢN LÝ KHÁCH HÀNG
+           (Tiêu đề in hoa bên trái, 3 nút hành động bên phải cùng hàng ngang)
+      ============================================== -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        
+        <!-- Tiêu đề trang in hoa toàn bộ & đồng bộ màu header #2a1212 -->
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-black text-[#2a1212] tracking-tight uppercase">
+            QUẢN LÝ HỒ SƠ BẢO HÀNH
+          </h1>
+        </div>
+
+        <!-- Cụm 3 nút hành động bên phải: Nằm ngang hàng nhau -->
+        <div class="flex items-center gap-2 sm:gap-2.5 flex-nowrap overflow-x-auto pb-1 sm:pb-0">
+          
+          <!-- Nút 1: Kiểm tra hàng loạt (Batch Check) -->
+          <button type="button" onclick="openBatchCheckModal()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 11 12 14 22 4"></polyline>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>Kiểm tra hàng loạt (Batch Check)</span>
+          </button>
+
+          <!-- Nút 2: Xuất Excel -->
+          <button type="button" onclick="exportExcel()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            <span>Xuất Excel</span>
+          </button>
+
+          <!-- Nút 3: + Tạo hồ sơ bảo hành mới (Cam #ff6b00) - Luôn nằm ngang hàng -->
+          <button type="button" onclick="openAddWarrantyModal()"
+            class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            <span>+ Tạo hồ sơ bảo hành mới</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           B. THỐNG KÊ TỶ LỆ KÍCH HOẠT TỨC THỜI (KPI CARD THEO HÌNH MẪU)
+      ============================================== -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        
+        <!-- Khối thống kê tổng quan (2 Cột rộng) -->
+        <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">TỔNG SỐ HỒ SƠ TOÀN HỆ THỐNG</span>
+              <div class="flex items-baseline gap-3 mt-1">
+                <span class="text-3xl font-black text-slate-900 tracking-tight">18,450</span>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  +340 hồ sơ/tuần
+                </span>
+              </div>
+            </div>
+
+            <!-- Các nút thao tác bổ trợ -->
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="openRenewModal()"
+                class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                </svg>
+                <span>Gia hạn gói bảo hành</span>
+              </button>
+              <button type="button" onclick="exportPdf()"
+                class="px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span>Xuất PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Thanh tiến trình trạng thái hồ sơ bảo hành -->
+          <div class="pt-3 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500 font-medium">Phân bố trạng thái bảo hành điện tử</span>
+              <span class="font-bold text-slate-700">80.3% Active • 13.0% Expired • 6.7% Khác</span>
+            </div>
+            <!-- Thanh bar 2 màu cam và đỏ như hình -->
+            <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex">
+              <div class="bg-[#ff6b00] h-full" style="width: 80.3%" title="80.3% Còn hạn"></div>
+              <div class="bg-[#991b1b] h-full" style="width: 13.0%" title="13.0% Đã hết hạn"></div>
+              <div class="bg-slate-300 h-full" style="width: 6.7%" title="6.7% Khác"></div>
+            </div>
+            <div class="flex items-center gap-5 text-[11px] text-slate-500 pt-1">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+                <span>80.3% Active (Còn hiệu lực)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#991b1b]"></span>
+                <span>13.0% Expired (Đã hết hạn)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Khối KPI tỷ lệ kích hoạt tức thời (1 Cột) -->
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">TỈ LỆ KÍCH HOẠT TỨC THỜI</span>
+            <span class="text-xs font-black text-[#ea580c] bg-[#fff4ec] border border-[#fed7aa] px-2 py-0.5 rounded-full">
+              92.4%
+            </span>
+          </div>
+
+          <div class="my-auto py-2">
+            <div class="flex items-baseline gap-2">
+              <span class="text-4xl font-black text-slate-900 tracking-tight">92.4%</span>
+              <span class="text-xs text-slate-500 font-medium">kích hoạt tự động qua QR/API</span>
+            </div>
+            <p class="text-[11.5px] text-slate-500 mt-1 leading-snug">
+              Hệ thống đồng bộ trực tiếp với cơ sở dữ liệu bán hàng & chuỗi phân phối điện máy toàn quốc.
+            </p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            <span>Thời gian xử lý trung bình:</span>
+            <span class="font-mono font-bold text-slate-700">0.8 giây</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           C. DẢI TAB LỌC TRẠNG THÁI & THANH TÌM KIẾM NHANH (THEO HÌNH ẢNH)
+      ============================================== -->
+      <div class="space-y-3">
+        
+        <!-- 1. Dải các Tab Lọc Trạng Thái -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs select-none">
+          
+          <!-- Tab 1: Tất cả hồ sơ (Active Cam) -->
+          <button type="button" onclick="setWarrantyTab(this, 'all')"
+            class="warranty-tab px-3.5 py-2 rounded-xl bg-[#ff6b00] text-white font-bold shadow-xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0">
+            <span>Tất cả hồ sơ</span>
+            <span class="bg-white/20 text-white font-extrabold text-[10.5px] px-1.5 py-0.5 rounded-full">18,450</span>
+          </button>
+
+          <!-- Tab 2: Còn hiệu lực -->
+          <button type="button" onclick="setWarrantyTab(this, 'active')"
+            class="warranty-tab px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Còn hiệu lực</span>
+            <span class="bg-slate-100 text-slate-600 font-bold text-[10.5px] px-1.5 py-0.5 rounded-full">14,828</span>
+          </button>
+
+          <!-- Tab 3: Sắp hết hạn ≤ 30 ngày -->
+          <button type="button" onclick="setWarrantyTab(this, 'expiring')"
+            class="warranty-tab px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>Sắp hết hạn ≤ 30 ngày</span>
+            <span class="bg-[#fff4ec] text-[#ea580c] border border-[#fed7aa] font-bold text-[10.5px] px-1.5 py-0.5 rounded-full">1,238</span>
+          </button>
+
+          <!-- Tab 4: Đã hết hạn -->
+          <button type="button" onclick="setWarrantyTab(this, 'expired')"
+            class="warranty-tab px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span>Đã hết hạn</span>
+            <span class="bg-rose-50 text-rose-600 border border-rose-200 font-bold text-[10.5px] px-1.5 py-0.5 rounded-full">2,400</span>
+          </button>
+
+          <!-- Tab 5: Bị từ chối / Vô hiệu hóa -->
+          <button type="button" onclick="setWarrantyTab(this, 'rejected')"
+            class="warranty-tab px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0">
+            <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span>Bị từ chối / Vô hiệu hóa</span>
+            <span class="bg-slate-100 text-slate-600 font-bold text-[10.5px] px-1.5 py-0.5 rounded-full">200</span>
+          </button>
+
+        </div>
+
+        <!-- 2. Thanh tìm kiếm nhanh có nút Lọc & Làm mới (Re-fetch) -->
+        <div class="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/80 shadow-xs flex items-center gap-2.5">
+          <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <input type="text" id="quickSearchInput" oninput="filterWarrantyTable()"
+              placeholder="Lọc nhanh Serial, Mã WB, Tên khách hàng hoặc Thiết bị..."
+              class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all">
+          </div>
+
+          <!-- Nút lọc nâng cao -->
+          <button type="button" onclick="alert('Đang mở bộ lọc thời gian nâng cao theo chu kỳ 30 ngày / 90 ngày / 1 năm...')"
+            class="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer" title="Lọc nâng cao">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span class="hidden sm:inline">Lọc</span>
+          </button>
+
+          <!-- Nút tải lại / Refresh -->
+          <button type="button" onclick="resetWarrantyTable()"
+            class="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer" title="Làm mới bảng">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            <span class="hidden sm:inline">Làm mới</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           D. BẢNG DỮ LIỆU HỒ SƠ BẢO HÀNH (DATA TABLE)
+      ============================================== -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse" id="warrantyTable">
+            
+            <!-- THEAD CHUẨN XÁC THEO HÌNH -->
+            <thead>
+              <tr class="border-b border-slate-200/80 bg-slate-50/60 text-[11px] font-black text-slate-500 uppercase tracking-wider select-none">
+                <th class="py-3.5 pl-4 sm:pl-6 pr-2 w-12 text-center">
+                  <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)"
+                    class="rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </th>
+                <th class="py-3.5 px-3 text-left min-w-[150px]">MÃ HỒ SƠ BH</th>
+                <th class="py-3.5 px-4 text-left min-w-[240px]">SẢN PHẨM & SỐ SERIAL</th>
+                <th class="py-3.5 px-4 text-left min-w-[170px]">KHÁCH HÀNG SỞ HỮU</th>
+                <th class="py-3.5 px-4 text-left min-w-[150px]">NGÀY MUA / KÍCH HOẠT</th>
+                <th class="py-3.5 px-4 text-left min-w-[170px]">HẾT HẠN & TIẾN TRÌNH</th>
+                <th class="py-3.5 pl-4 pr-6 text-center min-w-[120px]">THAO TÁC</th>
+              </tr>
+            </thead>
+
+            <!-- TBODY: 5 DÒNG HỒ SƠ THEO HÌNH ẢNH MẪU -->
+            <tbody class="divide-y divide-slate-100 text-xs text-slate-700">
+
+              <!-- DÒNG 1: WB-2023-8812 (Dell XPS 15 9530) -->
+              <tr class="hover:bg-slate-50/80 transition-colors warranty-row" data-status="active">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center align-middle">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+
+                <!-- MÃ HỒ SƠ BH -->
+                <td class="py-4 px-3 align-middle">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-[#fff4ec] border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center flex-shrink-0">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-[#ea580c] text-xs">
+                        WB-2023-8812
+                      </div>
+                      <div class="font-mono text-[10px] text-slate-400 mt-0.5">
+                        BSON#64fa2c...
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- SẢN PHẨM & SỐ SERIAL -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-xs sm:text-sm">
+                        Dell XPS 15 9530 OLED 3.5K
+                      </div>
+                      <div class="font-mono text-[11px] text-slate-500 mt-0.5">
+                        SN: DLXPS-99281-VN
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- KHÁCH HÀNG SỞ HỮU -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    Nguyễn Văn Anh
+                  </div>
+                  <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span>📞</span> <span>0908.112.233</span>
+                  </div>
+                </td>
+
+                <!-- NGÀY MUA / KÍCH HOẠT -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-[11px] text-slate-600">
+                    Mua: <span class="font-medium">15/10/2023</span>
+                  </div>
+                  <div class="text-[11px] text-[#ea580c] font-bold mt-0.5">
+                    Kích hoạt: 16/10/2023
+                  </div>
+                </td>
+
+                <!-- HẾT HẠN & TIẾN TRÌNH -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center justify-between text-xs font-bold text-slate-800 mb-1">
+                    <span>16/10/2024</span>
+                    <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded">Còn hạn</span>
+                  </div>
+                  <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-amber-600 h-1.5 rounded-full" style="width: 75%"></div>
+                  </div>
+                </td>
+
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center align-middle">
+                  <div class="flex items-center justify-center gap-2 text-slate-400">
+                    <button type="button" onclick="verifyWarranty('WB-2023-8812', 'Dell XPS 15', 'Nguyễn Văn Anh')"
+                      class="hover:text-emerald-600 transition-colors p-1 cursor-pointer" title="Xác thực bảo hành">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <polyline points="9 12 11 14 15 10"></polyline>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openRenewModal('WB-2023-8812', 'Dell XPS 15')"
+                      class="hover:text-amber-600 transition-colors p-1 cursor-pointer" title="Gia hạn bảo hành">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="printWarrantyCard('WB-2023-8812')"
+                      class="hover:text-slate-700 transition-colors p-1 cursor-pointer" title="In thẻ bảo hành điện tử">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 2: WB-2024-1044 (MacBook Pro 14 M3 Pro) - Sắp hết hạn -->
+              <tr class="hover:bg-slate-50/80 transition-colors warranty-row" data-status="expiring">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center align-middle">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+
+                <td class="py-4 px-3 align-middle">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-[#fff4ec] border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center flex-shrink-0">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-[#ea580c] text-xs">
+                        WB-2024-1044
+                      </div>
+                      <div class="font-mono text-[10px] text-slate-400 mt-0.5">
+                        BSON#64fa2e...
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-xs sm:text-sm">
+                        MacBook Pro 14 M3 Pro 36GB
+                      </div>
+                      <div class="font-mono text-[11px] text-slate-500 mt-0.5">
+                        SN: APP-MBP14-9921
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    Nguyễn Thị Bích Loan
+                  </div>
+                  <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span>📞</span> <span>0912.445.678</span>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-[11px] text-slate-600">
+                    Mua: <span class="font-medium">01/06/2023</span>
+                  </div>
+                  <div class="text-[11px] text-[#ea580c] font-bold mt-0.5">
+                    Kích hoạt: 02/06/2023
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center justify-between text-xs font-bold text-rose-600 mb-1">
+                    <span>02/06/2024</span>
+                    <span class="text-[10px] text-rose-600 font-bold bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">Cận hạn</span>
+                  </div>
+                  <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-rose-600 h-1.5 rounded-full" style="width: 95%"></div>
+                  </div>
+                </td>
+
+                <td class="py-4 pl-4 pr-6 text-center align-middle">
+                  <div class="flex items-center justify-center gap-2 text-slate-400">
+                    <button type="button" onclick="verifyWarranty('WB-2024-1044', 'MacBook Pro 14', 'Nguyễn Thị Bích Loan')"
+                      class="hover:text-emerald-600 transition-colors p-1 cursor-pointer" title="Xác thực bảo hành">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <polyline points="9 12 11 14 15 10"></polyline>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="alert('Đã gửi thông báo khẩn qua Zalo/SMS nhắc khách hàng gia hạn hợp đồng!')"
+                      class="hover:text-amber-500 text-amber-600 transition-colors p-1 cursor-pointer" title="Xử lý khẩn cấp">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="printWarrantyCard('WB-2024-1044')"
+                      class="hover:text-slate-700 transition-colors p-1 cursor-pointer" title="In thẻ">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 3: WB-2022-5401 (Sony Alpha A7 Mark IV Body) -->
+              <tr class="hover:bg-slate-50/80 transition-colors warranty-row" data-status="active">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center align-middle">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+
+                <td class="py-4 px-3 align-middle">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-[#fff4ec] border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center flex-shrink-0">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-[#ea580c] text-xs">
+                        WB-2022-5401
+                      </div>
+                      <div class="font-mono text-[10px] text-slate-400 mt-0.5">
+                        BSON#64fa89...
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-xs sm:text-sm">
+                        Sony Alpha A7 Mark IV Body
+                      </div>
+                      <div class="font-mono text-[11px] text-slate-500 mt-0.5">
+                        SN: SNY-A7M4-33812
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    Trần Đình Khang
+                  </div>
+                  <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span>📞</span> <span>0977.899.112</span>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-[11px] text-slate-600">
+                    Mua: <span class="font-medium">10/01/2023</span>
+                  </div>
+                  <div class="text-[11px] text-[#ea580c] font-bold mt-0.5">
+                    Kích hoạt: 10/01/2023
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center justify-between text-xs font-bold text-slate-800 mb-1">
+                    <span>10/01/2026</span>
+                    <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded">Còn hạn</span>
+                  </div>
+                  <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-amber-700 h-1.5 rounded-full" style="width: 45%"></div>
+                  </div>
+                </td>
+
+                <td class="py-4 pl-4 pr-6 text-center align-middle">
+                  <div class="flex items-center justify-center gap-2 text-slate-400">
+                    <button type="button" onclick="verifyWarranty('WB-2022-5401', 'Sony Alpha A7', 'Trần Đình Khang')"
+                      class="hover:text-emerald-600 transition-colors p-1 cursor-pointer" title="Xác thực bảo hành">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <polyline points="9 12 11 14 15 10"></polyline>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openRenewModal('WB-2022-5401', 'Sony Alpha A7')"
+                      class="hover:text-amber-600 transition-colors p-1 cursor-pointer" title="Gia hạn">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="printWarrantyCard('WB-2022-5401')"
+                      class="hover:text-slate-700 transition-colors p-1 cursor-pointer" title="In thẻ">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 4: WB-2023-1102 (Samsung Galaxy S24 Ultra) - Đã hết hạn -->
+              <tr class="hover:bg-slate-50/80 transition-colors warranty-row" data-status="expired">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center align-middle">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+
+                <td class="py-4 px-3 align-middle">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center flex-shrink-0">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-slate-700 text-xs">
+                        WB-2023-1102
+                      </div>
+                      <div class="font-mono text-[10px] text-slate-400 mt-0.5">
+                        BSON#64fa90...
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-xs sm:text-sm">
+                        Samsung Galaxy S24 Ultra 512GB
+                      </div>
+                      <div class="font-mono text-[11px] text-slate-500 mt-0.5">
+                        SN: SSG-S24U-01192
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    Lê Hoàng Nam
+                  </div>
+                  <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span>📞</span> <span>0933.221.789</span>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-[11px] text-slate-600">
+                    Mua: <span class="font-medium">12/02/2023</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 font-medium mt-0.5">
+                    Kích hoạt: 12/02/2023
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-1">
+                    <span>12/02/2024</span>
+                    <span class="text-[10px] text-slate-500 font-bold bg-slate-100 px-1.5 py-0.2 rounded">Hết hạn</span>
+                  </div>
+                  <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-slate-400 h-1.5 rounded-full" style="width: 100%"></div>
+                  </div>
+                </td>
+
+                <td class="py-4 pl-4 pr-6 text-center align-middle">
+                  <div class="flex items-center justify-center gap-2 text-slate-400">
+                    <button type="button" onclick="verifyWarranty('WB-2023-1102', 'Galaxy S24 Ultra', 'Lê Hoàng Nam')"
+                      class="hover:text-emerald-600 transition-colors p-1 cursor-pointer" title="Kiểm tra trạng thái">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <polyline points="9 12 11 14 15 10"></polyline>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openRenewModal('WB-2023-1102', 'Galaxy S24 Ultra')"
+                      class="hover:text-amber-600 transition-colors p-1 cursor-pointer" title="Gia hạn bảo hành mới">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="printWarrantyCard('WB-2023-1102')"
+                      class="hover:text-slate-700 transition-colors p-1 cursor-pointer" title="In thẻ">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 5: WB-2023-0498 (LG UltraGear 27GR95QE) - Bị từ chối điều kiện -->
+              <tr class="hover:bg-slate-50/80 transition-colors warranty-row" data-status="rejected">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center align-middle">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+
+                <td class="py-4 px-3 align-middle">
+                  <div class="flex items-center gap-2.5">
+                    <!-- Icon đỏ cấm/từ chối theo đúng hình ảnh -->
+                    <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center flex-shrink-0 font-bold">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-mono font-bold text-slate-800 text-xs">
+                        WB-2023-0498
+                      </div>
+                      <div class="font-mono text-[10px] text-slate-400 mt-0.5">
+                        BSON#64faa1...
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center flex-shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-xs sm:text-sm">
+                        LG UltraGear 27GR95QE OLED
+                      </div>
+                      <div class="font-mono text-[11px] text-slate-500 mt-0.5">
+                        SN: LG-27OLED-5541
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    Phạm Quốc Tuấn
+                  </div>
+                  <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span>📞</span> <span>0988.555.019</span>
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-[11px] text-slate-600">
+                    Mua: <span class="font-medium">18/08/2023</span>
+                  </div>
+                  <div class="text-[11px] text-rose-600 font-bold mt-0.5">
+                    Hủy: 04/11/2023
+                  </div>
+                </td>
+
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-xs font-bold text-rose-600 leading-tight">
+                    Bị từ chối điều kiện
+                  </div>
+                  <div class="text-[10.5px] text-slate-400 mt-0.5">
+                    Tem rách, vô nước
+                  </div>
+                </td>
+
+                <td class="py-4 pl-4 pr-6 text-center align-middle">
+                  <div class="flex items-center justify-center gap-2 text-slate-400">
+                    <button type="button" onclick="alert('Biên bản giám định kỹ thuật: Phát hiện mạch nguồn bị oxy hóa nặng do ẩm nước và tem void bị bong rách trước khi tiếp nhận.')"
+                      class="hover:text-slate-700 transition-colors p-1 cursor-pointer" title="Xem biên bản giám định">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="alert('Hồ sơ này đã bị KHÓA VĨNH VIỄN theo điều khoản từ chối bảo hành của nhà sản xuất.')"
+                      class="hover:text-rose-600 text-slate-400 transition-colors p-1 cursor-pointer" title="Hồ sơ đã khóa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- FOOTER PHÂN TRANG THEO THIẾT KẾ (Hiển thị 1 - 5 trên tổng số 18,450 hồ sơ bảo hành) -->
+        <div class="px-4 sm:px-6 py-4 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          
+          <!-- Thông tin số dòng -->
+          <div class="flex items-center gap-2">
+            <span>Hiển thị <strong class="text-slate-800">1 - 5</strong> trên tổng số <strong class="text-slate-800">18,450</strong> hồ sơ bảo hành</span>
+            <span class="text-slate-300">•</span>
+            <div class="flex items-center gap-1.5">
+              <span>Số dòng:</span>
+              <select class="bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#ff6b00]">
+                <option value="10" selected>10 dòng</option>
+                <option value="25">25 dòng</option>
+                <option value="50">50 dòng</option>
+                <option value="100">100 dòng</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Các nút phân trang (|< < 1 2 3 ... 738 > >|) -->
+          <div class="flex items-center gap-1 font-bold">
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              |‹
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ‹
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg bg-[#ff6b00] text-white flex items-center justify-center shadow-xs">
+              1
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              2
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              3
+            </button>
+            <span class="w-8 h-8 flex items-center justify-center text-slate-400">...</span>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              738
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ›
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ›|
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ==============================================
+       MODAL 1: TẠO HỒ SƠ BẢO HÀNH MỚI
+  ============================================== -->
+  <div id="addWarrantyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+        <div>
+          <h3 class="font-black text-slate-900 text-base">Tạo hồ sơ bảo hành điện tử mới</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Khởi tạo mã định danh WB và liên kết khách hàng với thiết bị</p>
+        </div>
+        <button type="button" onclick="closeModal('addWarrantyModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <form id="addWarrantyForm" onsubmit="handleSaveWarranty(event)" class="space-y-4 pt-4 text-xs">
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Mã hồ sơ bảo hành (Tự động) *</label>
+            <input type="text" id="newWbCode" required readonly
+              class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-[#ea580c] cursor-not-allowed">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Thời hạn bảo hành *</label>
+            <select id="newPeriod" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="12">12 Tháng (Tiêu chuẩn)</option>
+              <option value="24" selected>24 Tháng (Mở rộng)</option>
+              <option value="36">36 Tháng (Toàn diện)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Họ tên khách hàng *</label>
+            <input type="text" id="newCustName" required placeholder="VD: Lê Hoàng Nam"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Số điện thoại liên hệ *</label>
+            <input type="tel" id="newCustPhone" required placeholder="VD: 0912.345.678"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Tên sản phẩm / Model thiết bị *</label>
+            <input type="text" id="newProdName" required placeholder="VD: Dell XPS 15 9530 OLED"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Số Serial / IMEI thiết bị *</label>
+            <input type="text" id="newSerial" required placeholder="VD: SN: DLXPS-99281-VN"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Ghi chú điều kiện kích hoạt bảo hành</label>
+          <textarea id="newNotes" rows="2" placeholder="Ví dụ: Thiết bị nguyên seal, kích hoạt theo hóa đơn VAT số #HD8891..."
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00] resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('addWarrantyModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-[#ff6b00] hover:bg-[#e05800] text-white font-bold cursor-pointer transition-all active:scale-95 shadow-xs">
+            Kích hoạt hồ sơ
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 2: KIỂM TRA HÀNG LOẠT (BATCH CHECK)
+  ============================================== -->
+  <div id="batchCheckModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+        <div>
+          <h3 class="font-black text-slate-900 text-base">Kiểm tra hàng loạt (Batch Check)</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Nhập danh sách mã Serial / IMEI để kiểm tra trạng thái bảo hành đồng thời</p>
+        </div>
+        <button type="button" onclick="closeModal('batchCheckModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-4 pt-4 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Danh sách Serial / IMEI (Mỗi dòng một mã):</label>
+          <textarea id="batchInput" rows="5"
+            placeholder="DLXPS-99281-VN&#10;APP-MBP14-9921&#10;SNY-A7M4-33812&#10;SSG-S24U-01192"
+            class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]"></textarea>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between text-slate-600">
+          <span>Tối đa hỗ trợ: <strong>500 mã/lượt</strong></span>
+          <span class="text-emerald-600 font-bold">MongoDB Cluster Online</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('batchCheckModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">
+            Đóng
+          </button>
+          <button type="button" onclick="executeBatchCheck()"
+            class="px-5 py-2 rounded-xl bg-[#ff6b00] text-white font-bold hover:bg-[#e05800] transition-colors cursor-pointer shadow-xs">
+            Bắt đầu kiểm tra
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 3: GIA HẠN GÓI BẢO HÀNH
+  ============================================== -->
+  <div id="renewModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+        <h3 class="font-black text-slate-900 text-base">Gia hạn gói bảo hành thiết bị</h3>
+        <button type="button" onclick="closeModal('renewModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <form onsubmit="handleRenewSubmit(event)" class="space-y-4 pt-4 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Mã hồ sơ bảo hành</label>
+          <input type="text" id="renewWbCode" value="WB-2023-8812" required
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-[#ea580c] focus:outline-none">
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Gói gia hạn thêm</label>
+          <select id="renewPlan"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-semibold focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+            <option value="6">+6 Tháng bảo hành linh kiện chính hãng</option>
+            <option value="12" selected>+12 Tháng bảo hành toàn diện CarePlus</option>
+            <option value="24">+24 Tháng gói VIP ProSupport</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('renewModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-[#ff6b00] text-white font-bold hover:bg-[#e05800] transition-colors cursor-pointer shadow-xs">
+            Xác nhận gia hạn
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       4. JAVASCRIPT XỬ LÝ GIAO DIỆN & TÌM KIẾM
+  ============================================== -->
+  <script>
+    // 1. Điều khiển Sidebar Mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('adminSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // 2. Mở / Đóng Modal
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // 3. Mở Modal Thêm hồ sơ bảo hành
+    function openAddWarrantyModal() {
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('newWbCode').value = `WB-2024-${randomNum}`;
+      openModal('addWarrantyModal');
+    }
+
+    // 4. Mở Modal Batch Check
+    function openBatchCheckModal() {
+      openModal('batchCheckModal');
+    }
+
+    function executeBatchCheck() {
+      const val = document.getElementById('batchInput').value.trim();
+      if (!val) {
+        alert('Vui lòng nhập ít nhất 1 mã Serial / IMEI để kiểm tra!');
+        return;
+      }
+      closeModal('batchCheckModal');
+      alert(`Đã kiểm tra đối soát 4 mã thiết bị: Tất cả 4/4 thiết bị đều có dữ liệu hợp lệ trên MongoDB Cluster!`);
+    }
+
+    // 5. Mở Modal Gia hạn
+    function openRenewModal(code, device) {
+      if (code) {
+        document.getElementById('renewWbCode').value = code;
+      }
+      openModal('renewModal');
+    }
+
+    function handleRenewSubmit(e) {
+      e.preventDefault();
+      const code = document.getElementById('renewWbCode').value;
+      const plan = document.getElementById('renewPlan').value;
+      alert(`Gia hạn thành công hồ sơ [${code}] thêm ${plan} tháng! Hệ thống đã tự động kích hoạt bảo hành điện tử.`);
+      closeModal('renewModal');
+    }
+
+    // 6. Xuất Excel & PDF
+    function exportExcel() {
+      alert('Đang trích xuất toàn bộ 18,450 hồ sơ bảo hành sang tệp Excel (.xlsx)...');
+    }
+
+    function exportPdf() {
+      alert('Đang tổng hợp báo cáo tổng quan hồ sơ bảo hành sang tệp PDF...');
+    }
+
+    function printWarrantyCard(wbCode) {
+      alert(`Đang mở giao diện in Phiếu / Thẻ bảo hành điện tử cho mã: ${wbCode}`);
+    }
+
+    function verifyWarranty(code, device, cust) {
+      alert(`Xác thực thành công:\nHồ sơ: ${code}\nThiết bị: ${device}\nKhách hàng: ${cust}\nTrạng thái: HỢP LỆ VÀ CÒN HẠN BẢO HÀNH TRÊN MẠNG LƯỚI HÃNG.`);
+    }
+
+    // 7. Checkbox chọn tất cả
+    function toggleSelectAll(master) {
+      const checkboxes = document.querySelectorAll('.row-checkbox');
+      checkboxes.forEach(cb => cb.checked = master.checked);
+    }
+
+    // 8. Chuyển đổi Tab Lọc
+    let currentTab = 'all';
+    function setWarrantyTab(btn, tab) {
+      currentTab = tab;
+      
+      document.querySelectorAll('.warranty-tab').forEach(b => {
+        b.className = 'warranty-tab px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0';
+      });
+
+      btn.className = 'warranty-tab px-3.5 py-2 rounded-xl bg-[#ff6b00] text-white font-bold shadow-xs flex items-center gap-2 cursor-pointer transition-all flex-shrink-0';
+      filterWarrantyTable();
+    }
+
+    // 9. Lọc bảng hồ sơ theo Tab & Ô tìm kiếm nhanh
+    function filterWarrantyTable() {
+      const search = (document.getElementById('quickSearchInput')?.value || '').toLowerCase().trim();
+      const rows = document.querySelectorAll('#warrantyTable tbody tr.warranty-row');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const rowStatus = row.getAttribute('data-status');
+
+        const matchSearch = !search || text.includes(search);
+        const matchTab = currentTab === 'all' || rowStatus === currentTab;
+
+        if (matchSearch && matchTab) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    function resetWarrantyTable() {
+      document.getElementById('quickSearchInput').value = '';
+      currentTab = 'all';
+      const allTabBtn = document.querySelector('.warranty-tab');
+      if (allTabBtn) {
+        setWarrantyTab(allTabBtn, 'all');
+      }
+      filterWarrantyTable();
+      alert('Đã đồng bộ và làm mới bảng dữ liệu bảo hành!');
+    }
+
+    // 10. Lưu hồ sơ bảo hành mới vào bảng
+    function handleSaveWarranty(e) {
+      e.preventDefault();
+      const code = document.getElementById('newWbCode').value;
+      const period = document.getElementById('newPeriod').value;
+      const cust = document.getElementById('newCustName').value.trim();
+      const phone = document.getElementById('newCustPhone').value.trim();
+      const prod = document.getElementById('newProdName').value.trim();
+      const serial = document.getElementById('newSerial').value.trim();
+
+      const tbody = document.querySelector('#warrantyTable tbody');
+      const newTr = document.createElement('tr');
+      newTr.className = 'hover:bg-slate-50/80 transition-colors warranty-row bg-emerald-50/20';
+      newTr.setAttribute('data-status', 'active');
+
+      const today = new Date();
+      const dateStr = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth()+1).padStart(2, '0')}/${today.getFullYear()}`;
+      const expDate = new Date();
+      expDate.setMonth(expDate.getMonth() + parseInt(period));
+      const expStr = `${String(expDate.getDate()).padStart(2, '0')}/${String(expDate.getMonth()+1).padStart(2, '0')}/${expDate.getFullYear()}`;
+
+      newTr.innerHTML = `
+        <td class="py-4 pl-4 sm:pl-6 pr-2 text-center align-middle">
+          <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+        </td>
+        <td class="py-4 px-3 align-middle">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-[#fff4ec] border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center flex-shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </div>
+            <div>
+              <div class="font-mono font-bold text-[#ea580c] text-xs">
+                ${code}
+              </div>
+              <div class="font-mono text-[10px] text-slate-400 mt-0.5">
+                BSON#64fa99...
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0 font-bold text-xs">
+              NEW
+            </div>
+            <div>
+              <div class="font-bold text-slate-900 text-xs sm:text-sm">
+                ${prod}
+              </div>
+              <div class="font-mono text-[11px] text-slate-500 mt-0.5">
+                ${serial}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="font-bold text-slate-900 text-xs">
+            ${cust}
+          </div>
+          <div class="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+            <span>📞</span> <span>${phone}</span>
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="text-[11px] text-slate-600">
+            Mua: <span class="font-medium">${dateStr}</span>
+          </div>
+          <div class="text-[11px] text-[#ea580c] font-bold mt-0.5">
+            Kích hoạt: Hôm nay
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-800 mb-1">
+            <span>${expStr}</span>
+            <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.2 rounded">Còn hạn</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-[#ff6b00] h-1.5 rounded-full" style="width: 100%"></div>
+          </div>
+        </td>
+        <td class="py-4 pl-4 pr-6 text-center align-middle">
+          <div class="flex items-center justify-center gap-2 text-slate-400">
+            <button type="button" onclick="verifyWarranty('${code}', '${prod}', '${cust}')"
+              class="hover:text-emerald-600 transition-colors p-1 cursor-pointer" title="Xác thực bảo hành">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            </button>
+            <button type="button" onclick="openRenewModal('${code}', '${prod}')"
+              class="hover:text-amber-600 transition-colors p-1 cursor-pointer" title="Gia hạn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+            </button>
+            <button type="button" onclick="printWarrantyCard('${code}')"
+              class="hover:text-slate-700 transition-colors p-1 cursor-pointer" title="In thẻ">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+            </button>
+          </div>
+        </td>
+      `;
+
+      tbody.insertBefore(newTr, tbody.firstChild);
+      closeModal('addWarrantyModal');
+      document.getElementById('addWarrantyForm').reset();
+      alert(`Đã kích hoạt hồ sơ bảo hành mới: [${code}] cho khách hàng ${cust} thành công!`);
+      filterWarrantyTable();
+    }
+  </script>
+
+</body>
+
+</html>
+

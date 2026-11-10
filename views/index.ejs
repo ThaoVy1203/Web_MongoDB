@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WarrantyOps - Tra Cứu & Quản Lý Bảo Hành Thiết Bị Điện Tử</title>
+  <!-- Nhúng font Plus Jakarta Sans từ Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+  <!-- ==============================================
+       1. TOP NAVBAR / HEADER
+  ============================================== -->
+  <header class="site-header">
+    <div class="container header-wrap">
+      <!-- Logo góc trên cùng bên trái với logo1.png -->
+      <a href="/" class="brand-area">
+        <img src="/images/logo1.png" alt="WarrantyOps Logo" class="brand-logo-img"
+          onerror="this.onerror=null; this.src='/images/logo.png';">
+      </a>
+
+      <!-- Menu Điều Hướng Chính -->
+      <nav class="header-nav-menu">
+        <a href="/" class="nav-menu-link active">Trang chủ</a>
+        <a href="/tra-cuu" class="nav-menu-link">Tra cứu bảo hành</a>
+        <a href="/san-pham-cua-toi" class="nav-menu-link">Sản phẩm của tôi</a>
+        <a href="/gui-yeu-cau" class="nav-menu-link">Gửi yêu cầu bảo hành</a>
+        <a href="/#liveTrackerSection" class="nav-menu-link">Theo dõi bảo hành</a>
+      </nav>
+
+      <!-- Phía phải: Hotline & Đăng nhập -->
+      <div class="header-right">
+        <button class="icon-search-btn" title="Tìm kiếm nhanh" onclick="window.location.href='/tra-cuu'">
+          <span>🔍</span>
+        </button>
+        <button class="btn-login" onclick="openLoginModal()">
+          Đăng nhập
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==============================================
+       THÔNG BÁO FLASH (NẾU CÓ)
+  ============================================== -->
+  <% if (typeof successMessage !=='undefined' && successMessage) { %>
+    <div class="container" style="margin-top: 1.5rem;">
+      <div
+        style="background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.9rem 1.25rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+        <span>✅ <%= successMessage %></span>
+        <button onclick="this.parentElement.style.display='none'"
+          style="background:none; border:none; cursor:pointer; font-size: 1.2rem; color: inherit;">&times;</button>
+      </div>
+    </div>
+    <% } %>
+
+      <% if (typeof errorMessage !=='undefined' && errorMessage) { %>
+        <div class="container" style="margin-top: 1.5rem;">
+          <div
+            style="background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.9rem 1.25rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+            <span>⚠️ <%= errorMessage %></span>
+            <button onclick="this.parentElement.style.display='none'"
+              style="background:none; border:none; cursor:pointer; font-size: 1.2rem; color: inherit;">&times;</button>
+          </div>
+        </div>
+        <% } %>
+
+          <!-- ==============================================
+       2. HERO SECTION
+  ============================================== -->
+          <section class="hero-section">
+            <div class="container">
+
+              <!-- Huy hiệu chứng nhận SLA -->
+              <div class="hero-pill-badge">
+                <span class="dot"></span>
+                <span>HYBRID SERVICES CERTIFIED PLATFORM | Chuẩn SLA Hãng</span>
+              </div>
+
+              <!-- Tiêu đề lớn -->
+              <h1 class="hero-title">
+                Tra cứu & Quản lý Bảo hành Thiết bị Điện tử<br>
+                <span class="gradient-text">Đơn giản, Minh bạch & Chuẩn xác</span>
+              </h1>
+
+              <!-- Phụ đề -->
+              <p class="hero-subtitle">
+                Đồng bộ trạng thái hồ sơ tức thì theo thời gian thực 24/7. Hỗ trợ kích hoạt điện tử, xử lý sự cố tại
+                trạm hoặc dịch vụ tận nơi toàn diện.
+              </p>
+
+              <!-- KHUNG TÌM KIẾM TRA CỨU TRUNG TÂM -->
+              <div class="search-tracking-box">
+                <div class="tracking-tabs">
+                  <div class="tab-buttons-group">
+                    <button class="tab-btn active" id="tabSerial" type="button" onclick="switchTab('serial')">Tra cứu
+                      IMEI / Serial</button>
+                    <button class="tab-btn" id="tabRMA" type="button" onclick="switchTab('rma')">Mã hồ sơ (RMA
+                      Ticket)</button>
+                  </div>
+                  <span class="tab-note-text">Tra cứu không cần đăng nhập</span>
+                </div>
+
+                <form action="/tra-cuu" method="GET" class="tracking-input-row" id="searchForm">
+                  <div class="input-with-icon">
+                    <span class="input-icon-left">⌘</span>
+                    <input type="text" name="serial" id="mainSearchInput" class="main-track-input"
+                      placeholder="Nhập số Serial / IMEI hoặc mã phiếu (VD: DLXPS-99281-VN)..."
+                      value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" required>
+                  </div>
+                  <button type="submit" class="btn-track-submit">
+                    Tra cứu ngay
+                  </button>
+                </form>
+
+                <!-- Các gợi ý tìm kiếm nhanh -->
+                <div class="quick-tags-row">
+                  <span class="quick-label">GỢI Ý TÌM KIẾM NHANH:</span>
+                  <button type="button" class="quick-tag-btn" onclick="fillSearch('DL-992810')">Dell XPS 15
+                    (DL-XPS-99281)</button>
+                  <button type="button" class="quick-tag-btn" onclick="fillSearch('C02GM9PK')">MacBook Pro 14"
+                    M3</button>
+                  <button type="button" class="quick-tag-btn"
+                    onclick="fillSearch('TKT-2024-8891')">RMA-2024-04192</button>
+                  <button type="button" class="quick-tag-btn" onclick="fillSearch('3589211029')">iPhone 15 Pro
+                    Max</button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- ==============================================
+       3. PROCESS SECTION: QUY TRÌNH 3 BƯỚC
+  ============================================== -->
+          <section class="process-section">
+            <div class="container">
+              <div class="section-tag">● QUY TRÌNH 3 BƯỚC TIÊU CHUẨN</div>
+              <h2 class="section-title">Quy trình Bảo hành Tinh gọn & Minh bạch</h2>
+              <p class="section-subtitle">Không cần xếp hàng chờ đợi, mọi thao tác được xử lý tự động qua hệ sinh thái
+                WarrantyOps.</p>
+
+              <div class="process-grid">
+                <!-- Bước 1 -->
+                <div class="process-card">
+                  <div class="process-card-top">
+                    <div class="process-icon-box">📱</div>
+                    <span class="process-step-num">01</span>
+                  </div>
+                  <h3>Tra cứu & Kích hoạt</h3>
+                  <p>Kiểm tra hạn gốc chỉ trong 3 giây. Đăng ký thông tin quyền sở hữu và kích hoạt bảo hành điện tử
+                    chính hãng thông qua Serial/IMEI.</p>
+                  <a href="javascript:void(0)" onclick="openCreateModal()" class="process-link">Kích hoạt hồ sơ mới
+                    →</a>
+                </div>
+
+                <!-- Bước 2 -->
+                <div class="process-card">
+                  <div class="process-card-top">
+                    <div class="process-icon-box">📋</div>
+                    <span class="process-step-num">02</span>
+                  </div>
+                  <h3>Gửi Yêu cầu Sửa chữa</h3>
+                  <p>Điền mô tả lỗi kỹ thuật trực tuyến, đính kèm hình ảnh/video hiện trạng. Hệ thống tự động thẩm định
+                    và cấp mã gửi hàng chuyển phát miễn phí.</p>
+                  <a href="/gui-yeu-cau" class="process-link">Tạo phiếu yêu cầu →</a>
+                </div>
+
+                <!-- Bước 3 -->
+                <div class="process-card">
+                  <div class="process-card-top">
+                    <div class="process-icon-box">🚚</div>
+                    <span class="process-step-num">03</span>
+                  </div>
+                  <h3>Theo dõi & Bàn giao</h3>
+                  <p>Giám sát kỹ thuật viên thao tác theo từng bước SLA. Nhận máy hoàn tất tại nhà kèm chứng nhận linh
+                    kiện nguyên bản xuất xưởng.</p>
+                  <a href="#liveTrackerSection" class="process-link">Xem tiến độ trực tiếp →</a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==============================================
+       4. TRUST & STATS DARK BANNER
+  ============================================== -->
+          <section class="dark-stats-section">
+            <div class="container">
+              <div class="dark-stats-card">
+
+                <!-- Bên trái: Tiêu đề & Logo thương hiệu -->
+                <div class="dark-left">
+                  <div class="section-tag" style="color: #ea580c;">● HIỆU SUẤT VẬN HÀNH 2024</div>
+                  <h2>Bảo hành chuẩn mực,<br>đo lường bằng từng<br>giây phút cam kết</h2>
+                  <p>Mọi chỉ số được kiểm soát tự động bởi hạ tầng MongoDB Replica, đảm bảo quyền lợi tối cao cho người
+                    sử dụng thiết bị công nghệ cao.</p>
+
+                  <div class="brand-logos-row">
+                    <span class="brand-chip">DELL</span>
+                    <span class="brand-chip">Apple</span>
+                    <span class="brand-chip">LG</span>
+                    <span class="brand-chip">SAMSUNG</span>
+                    <span class="brand-chip-more">Cùng hơn 120+ thương hiệu</span>
+                  </div>
+                </div>
+
+                <!-- Bên phải: 4 hộp số liệu đo lường SLA -->
+                <div class="dark-metrics-grid">
+                  <!-- Box 1 -->
+                  <div class="metric-dark-box">
+                    <div class="metric-box-top">
+                      <span style="font-size: 1.1rem;">👍</span>
+                      <span class="metric-badge-tag">OUT</span>
+                    </div>
+                    <div class="metric-big-num">99.8%</div>
+                    <div class="metric-label-text">Tỷ lệ hài lòng giải quyết đề xuất bảo hành</div>
+                    <div class="mini-bar-progress">
+                      <div class="mini-bar-fill" style="width: 99.8%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Box 2 -->
+                  <div class="metric-dark-box">
+                    <div class="metric-box-top">
+                      <span style="font-size: 1.1rem;">⏱️</span>
+                      <span class="metric-badge-tag">SLA</span>
+                    </div>
+                    <div class="metric-big-num">1.8 <span style="font-size: 1rem; font-weight:600;">GIỜ</span></div>
+                    <div class="metric-label-text">Thời gian xử lý trả thiết bị trung bình</div>
+                    <div class="mini-bar-progress">
+                      <div class="mini-bar-fill" style="width: 85%;"></div>
+                    </div>
+                  </div>
+
+                  <!-- Box 3 -->
+                  <div class="metric-dark-box">
+                    <div class="metric-box-top">
+                      <span style="font-size: 1.1rem;">🏢</span>
+                      <span class="metric-badge-tag">HUB</span>
+                    </div>
+                    <div class="metric-big-num">14 <span style="font-size: 1rem; font-weight:600;">TRẠM</span></div>
+                    <div class="metric-label-text">Trung tâm kỹ thuật phủ sóng toàn quốc</div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 6px;">TP. HCM - HN - ĐN</div>
+                  </div>
+
+                  <!-- Box 4 -->
+                  <div class="metric-dark-box">
+                    <div class="metric-box-top">
+                      <span style="font-size: 1.1rem;">🛡️</span>
+                      <span class="metric-badge-tag">ISO 9001</span>
+                    </div>
+                    <div class="metric-big-num">100%</div>
+                    <div class="metric-label-text">Linh kiện gốc kiểm duyệt xuất kho</div>
+                    <div style="font-size: 0.72rem; color: #64748b; margin-top: 6px;">Quét mã tem QR</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- ==============================================
+       5. SERVICE PACKAGES / GÓI DỊCH VỤ TOÀN DIỆN
+  ============================================== -->
+          <section class="services-section">
+            <div class="container">
+              <div class="section-header-flex">
+                <div>
+                  <div class="section-tag">● DỊCH VỤ & TIỆN ÍCH ĐỘC QUYỀN</div>
+                  <h2 class="section-title">Gói Chăm Sóc & Hỗ Trợ Thiết Bị Toàn Diện</h2>
+                </div>
+                <a href="javascript:void(0)"
+                  onclick="alert('Đang hiển thị toàn bộ 3 gói chính sách bảo trợ tiêu chuẩn!')"
+                  class="view-all-link">Xem tất cả chính sách bảo trợ →</a>
+              </div>
+
+              <div class="services-grid">
+                <!-- Gói 1 -->
+                <div class="service-card">
+                  <div class="service-img-wrap">
+                    <img
+                      src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80"
+                      alt="Đăng ký Bảo hành Điện tử" class="service-img">
+                    <span class="service-category-badge">ĐIỆN MÁY & DI ĐỘNG</span>
+                  </div>
+                  <div class="service-content">
+                    <div>
+                      <h3>Đăng ký Bảo hành Điện tử</h3>
+                      <p>Số hóa toàn bộ phiếu bảo hành giấy. Quản lý hạn bảo hành đa thiết bị (Laptop, Điện thoại, Màn
+                        hình, TV) trên một bảng điều khiển tập trung.</p>
+                    </div>
+                    <div class="service-card-footer">
+                      <span class="service-meta-left">Thời hạn: 12-36 Tháng</span>
+                      <a href="javascript:void(0)" onclick="openCreateModal()" class="service-action-link">Đăng ký ngay
+                        →</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gói 2 -->
+                <div class="service-card">
+                  <div class="service-img-wrap">
+                    <img
+                      src="https://images.unsplash.com/photo-1526738549149-8e07eca6c147?auto=format&fit=crop&w=600&q=80"
+                      alt="Chính sách Đổi mới 1:1 Siêu tốc" class="service-img">
+                    <span class="service-category-badge">ĐẶC QUYỀN ĐỔI MỚI</span>
+                  </div>
+                  <div class="service-content">
+                    <div>
+                      <h3>Chính sách Đổi mới 1:1 Siêu tốc</h3>
+                      <p>Đối với lỗi phần cứng từ nhà sản xuất trong vòng 30 ngày đầu, WarrantyOps cam kết cấp thiết bị
+                        thay thế hoàn toàn mới nguyên hộp.</p>
+                    </div>
+                    <div class="service-card-footer">
+                      <span class="service-meta-left">Lấy ngay trong 48h</span>
+                      <a href="javascript:void(0)"
+                        onclick="alert('Chính sách áp dụng cho tất cả sản phẩm lỗi phần cứng xác nhận bởi kỹ thuật viên trong 30 ngày đầu.')"
+                        class="service-action-link">Xem điều kiện →</a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Gói 3 -->
+                <div class="service-card">
+                  <div class="service-img-wrap">
+                    <img
+                      src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=600&q=80"
+                      alt="Bảo hành Tận nơi Nhanh 2h" class="service-img">
+                    <span class="service-category-badge">DỊCH VỤ TẬN NƠI 24/7</span>
+                  </div>
+                  <div class="service-content">
+                    <div>
+                      <h3>Bảo hành Tận nơi Nhanh 2h</h3>
+                      <p>Kỹ sư có mặt tận nhà hoặc văn phòng xử lý trực tiếp đối với Doanh nghiệp và các dòng máy trạm,
+                        máy tính hoặc laptop chuyên nghiệp.</p>
+                    </div>
+                    <div class="service-card-footer">
+                      <span class="service-meta-left">Phạm vi: 34 Thành phố</span>
+                      <a href="javascript:void(0)" onclick="openCreateModal()" class="service-action-link">Đặt lịch hẹn
+                        →</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==============================================
+       6. LIVE RMA TRACKING STEPPER
+  ============================================== -->
+          <% const currentTicket=(typeof activeTicket !=='undefined' && activeTicket) ? activeTicket : {
+            warrantyCode: 'TKT-2024-8891' , customerName: 'Trần Anh Tuấn' , productName: 'Dell XPS 15 9530' ,
+            productSerial: 'DL-XPS-99281-VN' , status: 'Đang kiểm tra' ,
+            issueDescription: 'Sọc màn hình dọc, chớp nháy khi mở gập' }; %>
+            <section class="live-tracker-section" id="liveTrackerSection">
+              <div class="container">
+                <div class="rma-tracker-card">
+
+                  <!-- Header của bộ theo dõi -->
+                  <div class="tracker-card-header">
+                    <div class="tracker-header-left">
+                      <div class="section-tag">● HỆ THỐNG THEO DÕI TRỰC TUYẾN</div>
+                      <h3>Minh bạch Tiến độ Phiếu RMA Thực tế</h3>
+                    </div>
+                    <div class="tracker-header-right">
+                      <span class="ticket-id-tag">Mẫu hồ sơ: <strong>#<%= currentTicket.warrantyCode %></strong></span>
+                      <span class="ticket-status-pill">
+                        <span
+                          style="width:6px; height:6px; background-color: var(--primary); border-radius:50%;"></span>
+                        <%= currentTicket.status %>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Thanh Stepper 4 bước chuẩn xác -->
+                  <div class="stepper-container">
+                    <div class="stepper-line-bg"></div>
+                    <div class="stepper-line-fill"></div>
+
+                    <!-- Bước 1 -->
+                    <div class="step-node">
+                      <div class="step-circle completed">✓</div>
+                      <div class="step-title">Tiếp nhận thiết bị</div>
+                      <div class="step-time">08:30 - 14/06/2024</div>
+                    </div>
+
+                    <!-- Bước 2 -->
+                    <div class="step-node">
+                      <div class="step-circle completed">✓</div>
+                      <div class="step-title">Chẩn đoán kỹ thuật</div>
+                      <div class="step-time">11:15 - 14/06/2024</div>
+                    </div>
+
+                    <!-- Bước 3 -->
+                    <div class="step-node">
+                      <div class="step-circle active">🔍</div>
+                      <div class="step-title" style="color: var(--primary);">Thay thế linh kiện OEM</div>
+                      <div class="step-time" style="color: var(--primary); font-weight:700;">Đang thực hiện</div>
+                    </div>
+
+                    <!-- Bước 4 -->
+                    <div class="step-node">
+                      <div class="step-circle">⏳</div>
+                      <div class="step-title">Kiểm tra & Trả máy</div>
+                      <div class="step-time">Dự kiến: 20/06/2024</div>
+                    </div>
+                  </div>
+
+                  <!-- Footer Stepper -->
+                  <div class="tracker-card-footer">
+                    <div class="sla-promise">
+                      <span>⏱️</span>
+                      <span>Cam kết SLA: <strong>Còn 26 giờ 45 phút</strong> trước thời hạn trả máy</span>
+                    </div>
+                    <a href="javascript:void(0)" onclick="openTicketDetailModal()" class="log-link">Xem log kiểm định
+                      test chức năng chi tiết →</a>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+
+            <!-- ==============================================
+       7. CALL TO ACTION BANNER
+  ============================================== -->
+            <section class="cta-banner-section">
+              <div class="container">
+                <div class="cta-banner-card">
+                  <div class="cta-left">
+                    <div class="section-tag" style="color: #ea580c;">● HỖ TRỢ NHANH NHẤT</div>
+                    <h2>Cần sửa chữa ngay hôm nay?<br>Khởi tạo hồ sơ chỉ với 2 phút.</h2>
+                    <p>Kỹ thuật viên chính hãng được đào tạo chuyên sâu sẽ đến tận nơi nhận thiết bị; bảo toàn chuẩn
+                      đóng gói an toàn.</p>
+                  </div>
+
+                  <div class="cta-buttons">
+                    <button class="btn-cta-primary" onclick="window.location.href='/gui-yeu-cau'">
+                      <span>📝</span> Gửi yêu cầu bảo hành
+                    </button>
+                    <button class="btn-cta-outline" onclick="openLoginModal()">
+                      <span>🔐</span> Đăng nhập tài khoản
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ==============================================
+       8. FOOTER
+  ============================================== -->
+            <footer class="site-footer" style="background-color: #111315;">
+              <div class="container">
+                <div class="footer-grid">
+
+                  <!-- Cột 1: Thông tin thương hiệu -->
+                  <div class="footer-about">
+                    <div class="brand-area" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+                      <img src="/images/logo2.png" alt="WarrantyOps Logo" class="brand-logo-img">
+                      <span class="footer-brand-title">WarrantyOps</span>
+                    </div>
+                    <p>Hệ thống quản lý bảo hành và vận hành dịch vụ điện tử cao cấp cho người tiêu dùng và chuỗi phân
+                      phối điện máy toàn quốc.</p>
+                  </div>
+
+                  <!-- Cột 2: Chính sách & Quy định -->
+                  <div class="footer-col">
+                    <h4>Chính sách & Quy định</h4>
+                    <ul class="footer-links-list">
+                      <li><a href="#">Điều khoản tiếp nhận thiết bị</a></li>
+                      <li><a href="#">Quy chuẩn bảo hành 1:1 trong 30 ngày</a></li>
+                      <li><a href="#">Quy định từ chối (vô nước, rơi vỡ)</a></li>
+                      <li><a href="#">Cam kết bảo mật dữ liệu khách hàng</a></li>
+                    </ul>
+                  </div>
+
+                  <!-- Cột 3: Trung tâm dịch vụ kỹ thuật -->
+                  <div class="footer-col">
+                    <h4>Trung tâm Dịch vụ Kỹ thuật</h4>
+                    <ul class="footer-links-list" style="font-size: 0.8rem; line-height: 1.6;">
+                      <li><strong>Hà Nội:</strong> Tầng 2, Tòa Technosoft, Phố Duy Tân, Cầu Giấy</li>
+                      <li><strong>Đà Nẵng:</strong> 36 Đặng Nguyên Cẩn, P. Hòa Cường B, Hải Châu</li>
+                      <li><strong>TP. Hồ Chí Minh:</strong> 38/45 Ung Văn Khiêm, Phường 25, Bình Thạnh</li>
+                    </ul>
+                  </div>
+
+                  <!-- Cột 4: Hỗ trợ khẩn cấp -->
+                  <div class="footer-col">
+                    <h4>Hỗ trợ khẩn cấp</h4>
+                    <div class="footer-support-meta">
+                      <div>Tổng đài tiếp nhận 24/7:</div>
+                      <div class="footer-hotline-num">1900 6868</div>
+                      <div class="footer-hotline-note">Cước gọi tiêu chuẩn: 1.000đ/phút</div>
+                      <div style="margin-top: 8px;">Email: <strong>support@warrantyops.com.vn</strong></div>
+                      <div>Thời gian làm việc: 08:00 - 20:30 (Cả T7 & CN)</div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Dòng bản quyền cuối trang căn giữa -->
+                <div class="footer-bottom-row">
+                  <p>© 2026 WarrantyOps Engineering. Quản lý hồ sơ và theo dõi bảo hành sản phẩm</p>
+                </div>
+              </div>
+            </footer>
+
+            <!-- ==============================================
+       9. MODAL: TẠO YÊU CẦU BẢO HÀNH MỚI
+  ============================================== -->
+            <div id="createModal" class="modal-overlay">
+              <div class="modal-box">
+                <div class="modal-header">
+                  <h3>📝 Gửi Yêu Cầu Bảo Hành / Tiếp Nhận Thiết Bị</h3>
+                  <button class="modal-close-btn" onclick="closeCreateModal()">&times;</button>
+                </div>
+
+                <form action="/warranty/create" method="POST">
+                  <div class="modal-body">
+                    <div class="form-grid">
+
+                      <div class="form-field full">
+                        <label for="warrantyCode">Mã phiếu (Để trống để tự tạo TKT-2024-XXXX)</label>
+                        <input type="text" id="warrantyCode" name="warrantyCode" placeholder="VD: TKT-2024-8895">
+                      </div>
+
+                      <div class="form-field">
+                        <label for="customerName">Họ và tên khách hàng <span style="color:red">*</span></label>
+                        <input type="text" id="customerName" name="customerName" required placeholder="Nguyễn Văn A">
+                      </div>
+
+                      <div class="form-field">
+                        <label for="customerPhone">Số điện thoại liên hệ <span style="color:red">*</span></label>
+                        <input type="tel" id="customerPhone" name="customerPhone" required placeholder="0901234567">
+                      </div>
+
+                      <div class="form-field">
+                        <label for="productName">Tên sản phẩm / Model <span style="color:red">*</span></label>
+                        <input type="text" id="productName" name="productName" required placeholder="Dell XPS 15 9530">
+                      </div>
+
+                      <div class="form-field">
+                        <label for="productSerial">Số Serial / IMEI máy <span style="color:red">*</span></label>
+                        <input type="text" id="productSerial" name="productSerial" required placeholder="SN: DL-992810">
+                      </div>
+
+                      <div class="form-field">
+                        <label for="category">Phân loại thiết bị</label>
+                        <select id="category" name="category">
+                          <option value="Laptop/Máy tính">Laptop/Máy tính</option>
+                          <option value="Điện thoại">Điện thoại</option>
+                          <option value="Thiết bị gia dụng">Thiết bị gia dụng</option>
+                          <option value="Phụ kiện">Phụ kiện</option>
+                          <option value="Khác">Khác</option>
+                        </select>
+                      </div>
+
+                      <div class="form-field">
+                        <label for="status">Trạng thái ban đầu</label>
+                        <select id="status" name="status">
+                          <option value="Tiếp nhận">Tiếp nhận</option>
+                          <option value="Đang kiểm tra">Đang kiểm tra</option>
+                          <option value="Chờ linh kiện">Chờ linh kiện</option>
+                        </select>
+                      </div>
+
+                      <div class="form-field full">
+                        <label for="issueDescription">Mô tả hiện tượng lỗi / Hư hỏng <span
+                            style="color:red">*</span></label>
+                        <textarea id="issueDescription" name="issueDescription" rows="3" required
+                          placeholder="Mô tả chi tiết tình trạng sản phẩm gặp phải..."></textarea>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="tab-btn" onclick="closeCreateModal()">Hủy bỏ</button>
+                    <button type="submit" class="btn-track-submit">Lưu Hồ Sơ Yêu Cầu</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- ==============================================
+       10. MODAL: ĐĂNG NHẬP HỆ THỐNG
+  ============================================== -->
+            <div id="loginModal" class="modal-overlay">
+              <div class="modal-box" style="max-width: 440px;">
+                <div class="modal-header">
+                  <h3>🔐 Đăng Nhập Hệ Thống WarrantyOps</h3>
+                  <button class="modal-close-btn" onclick="closeLoginModal()">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                  <div style="display:flex; flex-direction:column; gap: 1rem;">
+                    <div class="form-field">
+                      <label>Tài khoản / Email quản trị</label>
+                      <input type="text" placeholder="admin@warrantyops.com" value="admin@warrantyops.com">
+                    </div>
+                    <div class="form-field">
+                      <label>Mật khẩu</label>
+                      <input type="password" placeholder="••••••••" value="password123">
+                    </div>
+                    <button type="button" class="btn-track-submit" style="width: 100%; justify-content: center;"
+                      onclick="alert('Đăng nhập thành công! Chào mừng Quản trị viên IT.'); closeLoginModal();">
+                      Xác nhận Đăng nhập
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ==============================================
+       11. MODAL: CHI TIẾT LOG KIỂM ĐỊNH KỸ THUẬT
+  ============================================== -->
+            <div id="ticketDetailModal" class="modal-overlay">
+              <div class="modal-box">
+                <div class="modal-header">
+                  <h3>🔍 Nhật Ký Kiểm Định: #<%= currentTicket.warrantyCode %>
+                  </h3>
+                  <button class="modal-close-btn" onclick="closeTicketDetailModal()">&times;</button>
+                </div>
+                <div class="modal-body" style="font-size: 0.9rem; line-height: 1.6;">
+                  <div style="background:#f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>Thiết bị:</strong>
+                    <%= currentTicket.productName %> (Serial: <code><%= currentTicket.productSerial %></code>)<br>
+                      <strong>Khách hàng:</strong>
+                      <%= currentTicket.customerName %><br>
+                        <strong>Tình trạng tiếp nhận:</strong> <em>
+                          <%= currentTicket.issueDescription %>
+                        </em>
+                  </div>
+
+                  <h4 style="font-size: 0.88rem; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">Nhật ký
+                    thao tác kỹ thuật:</h4>
+                  <ul style="padding-left: 20px; color: #334155;">
+                    <li><strong>08:30:</strong> Tiếp nhận thiết bị tại quầy trạm dịch vụ, in biên bản bàn giao số #8891.
+                    </li>
+                    <li><strong>10:00:</strong> Chạy bài kiểm tra chẩn đoán eDP cáp màn hình và bo mạch GPU.</li>
+                    <li><strong>11:15:</strong> Phát hiện đứt ngầm mạch tín hiệu màn hình, xuất kho linh kiện màn hình
+                      OEM chính hãng.</li>
+                    <li><strong>Hiện tại:</strong> Kỹ thuật viên đang tiến hành thay thế và test màu sắc chuẩn 100%
+                      sRGB.</li>
+                  </ul>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="tab-btn" onclick="closeTicketDetailModal()">Đóng</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ==============================================
+       JAVASCRIPT SCRIPTS
+  ============================================== -->
+            <script>
+              function switchTab(type) {
+                const tabSerial = document.getElementById('tabSerial');
+                const tabRMA = document.getElementById('tabRMA');
+                const input = document.getElementById('mainSearchInput');
+
+                if (type === 'serial') {
+                  tabSerial.classList.add('active');
+                  tabRMA.classList.remove('active');
+                  input.placeholder = 'Nhập số Serial / IMEI (VD: DL-XPS-99281-VN)...';
+                } else {
+                  tabRMA.classList.add('active');
+                  tabSerial.classList.remove('active');
+                  input.placeholder = 'Nhập mã phiếu RMA (VD: TKT-2024-8891)...';
+                }
+                input.focus();
+              }
+
+              function fillSearch(val) {
+                const input = document.getElementById('mainSearchInput');
+                input.value = val;
+                document.getElementById('searchForm').submit();
+              }
+
+              function openCreateModal() {
+                document.getElementById('createModal').classList.add('active');
+              }
+
+              function closeCreateModal() {
+                document.getElementById('createModal').classList.remove('active');
+              }
+
+              function openLoginModal() {
+                document.getElementById('loginModal').classList.add('active');
+              }
+
+              function closeLoginModal() {
+                document.getElementById('loginModal').classList.remove('active');
+              }
+
+              function openTicketDetailModal() {
+                document.getElementById('ticketDetailModal').classList.add('active');
+              }
+
+              function closeTicketDetailModal() {
+                document.getElementById('ticketDetailModal').classList.remove('active');
+              }
+
+              // Đóng khi nhấp ngoài vùng modal
+              window.onclick = function (e) {
+                const cM = document.getElementById('createModal');
+                const lM = document.getElementById('loginModal');
+                const tM = document.getElementById('ticketDetailModal');
+                if (e.target === cM) closeCreateModal();
+                if (e.target === lM) closeLoginModal();
+                if (e.target === tM) closeTicketDetailModal();
+              };
+            </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Quản lý Sản phẩm & Danh mục Thiết bị - EXED OPS ADMIN</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ff6b00",
+            "primary-dark": "#e05800",
+            "primary-light": "#fff7ed",
+            "topbar-dark": "#2a1212",
+            "sidebar-active-bg": "#fbeee6",
+            "sidebar-active-text": "#8B2500"
+          },
+          fontFamily: {
+            "sans": ["Plus Jakarta Sans", "Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @layer base {
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+    }
+
+    /* Tùy chỉnh thanh cuộn mảnh */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#111315] antialiased min-h-screen flex flex-col selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
+
+  <!-- ==============================================
+       1. TOP HEADER TOÀN MÀN HÌNH (DARK BURGUNDY #2a1212)
+  ============================================== -->
+  <header class="h-20 bg-[#2a1212] text-white sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between border-b border-black/30 shadow-xs">
+    
+    <!-- Phía trái: Logo11 nhỏ gọn + Badge ADMIN -->
+    <div class="flex items-center gap-3">
+      <!-- Nút mở drawer trên mobile -->
+      <button type="button" onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white p-1.5 mr-1 cursor-pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/admin" class="flex items-center group py-1">
+        <img src="/images/logo11.png" alt="WarrantyOps Logo" class="h-10 sm:h-11 object-contain transition-transform group-hover:scale-105"
+          onerror="this.onerror=null; this.src='/images/logo1.png';">
+      </a>
+
+      <span class="bg-black/40 text-white/90 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 tracking-wider uppercase ml-1 shadow-2xs">
+        ADMIN
+      </span>
+    </div>
+
+    <!-- Phía phải: Chuông thông báo + Profile Admin01 -->
+    <div class="flex items-center gap-4 sm:gap-5">
+      
+      <!-- Chuông thông báo có chấm cam -->
+      <button type="button" onclick="alert('Kho sản phẩm đã đồng bộ 100% với MongoDB Sharded Cluster!')"
+        class="relative text-white/80 hover:text-white transition-colors p-1" title="Thông báo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+      </button>
+
+      <!-- Profile admin01 -->
+      <div class="flex items-center gap-2 text-white/90 text-xs font-bold cursor-pointer hover:text-white transition-colors">
+        <div class="w-7 h-7 rounded-full bg-[#ff6b00]/25 text-[#ff6b00] border border-[#ff6b00]/40 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span>admin01</span>
+      </div>
+
+    </div>
+
+  </header>
+
+  <!-- ==============================================
+       CONTAINER DƯỚI TOPBAR: SIDEBAR + MAIN CONTENT
+  ============================================== -->
+  <div class="flex-1 flex min-h-[calc(100vh-5rem)] relative">
+
+    <!-- ==============================================
+         2. SIDEBAR TRÁI (WHITE THEME / ĐỒNG BỘ DASHBOARD)
+    ============================================== -->
+    <aside id="adminSidebar"
+      class="w-60 lg:w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between fixed lg:sticky top-20 bottom-0 left-0 z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0 h-[calc(100vh-5rem)] overflow-y-auto">
+      
+      <!-- Danh sách menu điều hướng -->
+      <div class="p-3.5 sm:p-4">
+        
+        <nav class="space-y-1">
+          
+          <!-- 1. Tổng quan (Dashboard) -->
+          <a href="/admin"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Tổng quan (Dashboard)</span>
+          </a>
+
+          <!-- 2. Quản lý khách hàng (Badge 1.4k) -->
+          <a href="/admin/khach-hang"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Quản lý khách hàng</span>
+            </div>
+            <span class="bg-slate-100 text-slate-500 font-semibold text-[10px] px-1.5 py-0.5 rounded">1.4k</span>
+          </a>
+
+          <!-- 3. Quản lý sản phẩm - ACTIVE (Đồng bộ kiểu Dashboard: Nền cam nhạt #fbeee6, Chữ nâu đỏ #8B2500) -->
+          <a href="/admin/san-pham"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-[#fbeee6] text-[#8B2500] font-extrabold text-xs transition-all shadow-2xs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span>Quản lý sản phẩm</span>
+          </a>
+
+          <!-- 4. Hồ sơ bảo hành -->
+          <a href="/admin/ho-so-bao-hanh"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Hồ sơ bảo hành</span>
+          </a>
+
+          <!-- 5. Yêu cầu & Xử lý phiếu (Chấm cam nhấp nháy) -->
+          <a href="/admin/yeu-cau-bao-hanh"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="13" x2="13" y2="13"></line>
+              </svg>
+              <span>Yêu cầu & Xử lý phiếu</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#ff6b00] ring-4 ring-[#ff6b00]/20 animate-pulse"></span>
+          </a>
+
+          <!-- 6. Thống kê & Báo cáo -->
+          <a href="/admin/thong-ke"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Thống kê & Báo cáo</span>
+          </a>
+
+        </nav>
+
+      </div>
+
+      <!-- Khối chân Sidebar: Trạng thái MongoDB & Ngôn ngữ -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50 space-y-2">
+        <div class="flex items-center justify-between text-[11px] text-slate-500 font-medium">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-mono text-slate-600">MongoDB v7.0 • Sharded</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-200/60">
+          <span class="hover:text-slate-600 cursor-pointer">⚙ Cấu hình</span>
+          <span class="font-bold text-slate-500 hover:text-slate-700 cursor-pointer">🌐 VN</span>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Overlay đóng sidebar trên mobile -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+    <!-- ==============================================
+         3. KHÔNG GIAN NỘI DUNG CHÍNH (QUẢN LÝ SẢN PHẨM)
+    ============================================== -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-7 space-y-5 min-w-0">
+
+      <!-- ==============================================
+           A. HEADER TRANG: BỐ CỤC & KÍCH THƯỚC GIỐNG TRANG QUẢN LÝ KHÁCH HÀNG
+           (Tiêu đề in hoa bên trái, 3 nút hành động bên phải cùng hàng ngang)
+      ============================================== -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        
+        <!-- Tiêu đề trang in hoa toàn bộ & đồng bộ màu header #2a1212 -->
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-black text-[#2a1212] tracking-tight uppercase">
+            QUẢN LÝ SẢN PHẨM
+          </h1>
+        </div>
+
+        <!-- Cụm 3 nút hành động bên phải: Nằm ngang hàng nhau -->
+        <div class="flex items-center gap-2 sm:gap-2.5 flex-nowrap overflow-x-auto pb-1 sm:pb-0">
+          
+          <!-- Nút 1: Xuất dữ liệu -->
+          <button type="button" onclick="exportProductData()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Xuất dữ liệu</span>
+          </button>
+
+          <!-- Nút 2: Quét mã vạch/QR Serial -->
+          <button type="button" onclick="openScanModal()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+              <rect x="7" y="7" width="10" height="10" rx="1"></rect>
+            </svg>
+            <span>Quét mã vạch/QR Serial</span>
+          </button>
+
+          <!-- Nút 3: + Thêm sản phẩm mới (Cam #ff6b00) - Luôn nằm ngang hàng -->
+          <button type="button" onclick="openAddProductModal()"
+            class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
+            <span>+ Thêm sản phẩm mới</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           B. THANH TÌM KIẾM & BỘ LỌC DANH MỤC / GÓI BH / TRẠNG THÁI
+      ============================================== -->
+      <div class="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/80 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+        
+        <!-- 1. Thanh tìm kiếm -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input type="text" id="searchInput" oninput="filterProductTable()"
+            placeholder="Tìm theo SKU, tên SP, số SN / IMEI kích hoạt..."
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all">
+        </div>
+
+        <!-- 2. Combobox Danh mục -->
+        <div class="w-full sm:w-auto min-w-[190px]">
+          <select id="categorySelect" onchange="filterProductTable()"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all cursor-pointer">
+            <option value="all">Tất cả danh mục (5)</option>
+            <option value="laptop">Laptop & PC</option>
+            <option value="phone">Điện thoại</option>
+            <option value="monitor">Màn hình & TV</option>
+            <option value="audio">Âm thanh</option>
+            <option value="component">Linh kiện</option>
+          </select>
+        </div>
+
+        <!-- 3. Combobox Thời hạn gói BH -->
+        <div class="w-full sm:w-auto min-w-[170px]">
+          <select id="warrantyPeriodSelect" onchange="filterProductTable()"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all cursor-pointer">
+            <option value="all">Thời hạn gói BH</option>
+            <option value="12">12 Tháng</option>
+            <option value="24">24 Tháng</option>
+            <option value="36">36 Tháng</option>
+          </select>
+        </div>
+
+        <!-- 4. Combobox Trạng thái kinh doanh -->
+        <div class="w-full sm:w-auto min-w-[190px]">
+          <select id="statusSelect" onchange="filterProductTable()"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all cursor-pointer">
+            <option value="all">Trạng thái kinh doanh</option>
+            <option value="selling">Đang kinh doanh</option>
+            <option value="stop">Ngừng kinh doanh</option>
+            <option value="coming">Sắp mở bán</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           C. DÒNG TIÊU ĐỀ BẢNG & BỘ CHUYỂN ĐỔI MẬT ĐỘ (CHÍNH XÁC HÌNH ẢNH)
+      ============================================== -->
+      <div class="flex items-center justify-between text-xs text-slate-600 px-1 pt-1">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-slate-900 text-sm">Danh sách mã sản phẩm</span>
+          <span id="targetCountBadge" class="bg-[#fff4ec] text-[#ea580c] border border-[#fed7aa] font-bold text-[11px] px-2.5 py-0.5 rounded-full">
+            5 sản phẩm mục tiêu
+          </span>
+        </div>
+
+        <!-- Nút chọn Mật độ hiển thị: Chuẩn / Gọn -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 font-medium">Mật độ:</span>
+          <div class="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-100 text-xs">
+            <button type="button" onclick="setDensity('standard')" id="btnStandard"
+              class="px-2.5 py-1 rounded-md font-bold text-slate-900 bg-white shadow-2xs transition-all cursor-pointer">
+              Chuẩn
+            </button>
+            <button type="button" onclick="setDensity('compact')" id="btnCompact"
+              class="px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-900 transition-all cursor-pointer">
+              Gọn
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================================
+           D. BẢNG DỮ LIỆU SẢN PHẨM (DATA TABLE)
+      ============================================== -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse" id="productTable">
+            
+            <!-- THEAD THEO CHUẨN THIẾT KẾ -->
+            <thead>
+              <tr class="border-b border-slate-200/80 bg-slate-50/60 text-[11px] font-black text-slate-500 uppercase tracking-wider select-none">
+                <th class="py-3.5 pl-4 sm:pl-6 pr-4 text-left min-w-[150px]">MÃ SKU</th>
+                <th class="py-3.5 px-4 text-left min-w-[260px]">SẢN PHẨM & DÒNG MÁY</th>
+                <th class="py-3.5 px-4 text-left min-w-[140px]">DANH MỤC</th>
+                <th class="py-3.5 px-4 text-left min-w-[180px]">MẪU SERIAL / KÍCH HOẠT</th>
+                <th class="py-3.5 px-4 text-left min-w-[190px]">GÓI BH TIÊU CHUẨN</th>
+                <th class="py-3.5 pl-4 pr-6 text-right min-w-[150px]">GIÁ & NGÀY MỞ BÁN</th>
+              </tr>
+            </thead>
+
+            <!-- TBODY: 5 SẢN PHẨM MẪU CHUẨN HOÁ -->
+            <tbody class="divide-y divide-slate-100 text-xs text-slate-700">
+
+              <!-- SẢN PHẨM 1: Dell XPS 15 9530 OLED -->
+              <tr class="hover:bg-slate-50/80 transition-colors product-row" data-category="laptop" data-warranty="24" data-status="selling">
+                <!-- MÃ SKU -->
+                <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+                  <div class="font-mono font-bold text-[#ea580c] text-xs">
+                    LAP-DELL-XPS15
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    Rev: 2024-A
+                  </div>
+                </td>
+
+                <!-- SẢN PHẨM & DÒNG MÁY -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                      <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=120&h=120&fit=crop"
+                        alt="Dell XPS 15" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight product-name">
+                        Dell XPS 15 9530 OLED
+                      </div>
+                      <div class="text-[11.5px] text-slate-500 mt-0.5">
+                        i7-13700H • RTX 4060 • 32GB
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- DANH MỤC -->
+                <td class="py-4 px-4 align-middle">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <span>Laptop & PC</span>
+                  </span>
+                </td>
+
+                <!-- MẪU SERIAL / KÍCH HOẠT -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-mono text-xs">
+                    <span class="text-slate-400">SN:</span> <strong class="text-slate-800">CN-0H75N8-75412</strong>
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Kích hoạt: <strong class="text-slate-800 font-bold">1,240</strong>
+                  </div>
+                </td>
+
+                <!-- GÓI BH TIÊU CHUẨN -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    24 Tháng chính hãng
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Bảo hành ProSupport 24/7
+                  </div>
+                </td>
+
+                <!-- GIÁ & NGÀY MỞ BÁN -->
+                <td class="py-4 pl-4 pr-6 text-right align-middle">
+                  <div class="font-mono font-black text-slate-900 text-sm tracking-tight">
+                    54,990,000 đ
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    15/03/2023
+                  </div>
+                </td>
+              </tr>
+
+              <!-- SẢN PHẨM 2: iPhone 15 Pro Max 256GB -->
+              <tr class="hover:bg-slate-50/80 transition-colors product-row" data-category="phone" data-warranty="12" data-status="selling">
+                <!-- MÃ SKU -->
+                <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+                  <div class="font-mono font-bold text-[#ea580c] text-xs">
+                    PHN-APL-IP15PM
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    VN/A (Chính hãng)
+                  </div>
+                </td>
+
+                <!-- SẢN PHẨM & DÒNG MÁY -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                      <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=120&h=120&fit=crop"
+                        alt="iPhone 15 Pro Max" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight product-name">
+                        iPhone 15 Pro Max 256GB
+                      </div>
+                      <div class="text-[11.5px] text-slate-500 mt-0.5">
+                        Titan Tự Nhiên • Chip A17 Pro
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- DANH MỤC -->
+                <td class="py-4 px-4 align-middle">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                      <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                    </svg>
+                    <span>Điện thoại</span>
+                  </span>
+                </td>
+
+                <!-- MẪU SERIAL / KÍCH HOẠT -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-mono text-xs">
+                    <span class="text-slate-400">IMEI:</span> <strong class="text-slate-800">356847118234912</strong>
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Kích hoạt: <strong class="text-slate-800 font-bold">3,490</strong>
+                  </div>
+                </td>
+
+                <!-- GÓI BH TIÊU CHUẨN -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    12 Tháng chính hãng
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Đổi mới 30 ngày tại AASP
+                  </div>
+                </td>
+
+                <!-- GIÁ & NGÀY MỞ BÁN -->
+                <td class="py-4 pl-4 pr-6 text-right align-middle">
+                  <div class="font-mono font-black text-slate-900 text-sm tracking-tight">
+                    29,890,000 đ
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    22/09/2023
+                  </div>
+                </td>
+              </tr>
+
+              <!-- SẢN PHẨM 3: LG 27GP850-B NanoIPS -->
+              <tr class="hover:bg-slate-50/80 transition-colors product-row" data-category="monitor" data-warranty="36" data-status="selling">
+                <!-- MÃ SKU -->
+                <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+                  <div class="font-mono font-bold text-[#ea580c] text-xs">
+                    MON-LG-27GP850
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    Rev: 27GP850-B
+                  </div>
+                </td>
+
+                <!-- SẢN PHẨM & DÒNG MÁY -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                      <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=120&h=120&fit=crop"
+                        alt="LG 27GP850" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight product-name">
+                        LG 27GP850-B NanoIPS
+                      </div>
+                      <div class="text-[11.5px] text-slate-500 mt-0.5">
+                        2K QHD • 165Hz • 1ms GtG
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- DANH MỤC -->
+                <td class="py-4 px-4 align-middle">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <span>Màn hình & TV</span>
+                  </span>
+                </td>
+
+                <!-- MẪU SERIAL / KÍCH HOẠT -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-mono text-xs">
+                    <span class="text-slate-400">SN:</span> <strong class="text-slate-800">304NDTK8M912</strong>
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Kích hoạt: <strong class="text-slate-800 font-bold">980</strong>
+                  </div>
+                </td>
+
+                <!-- GÓI BH TIÊU CHUẨN -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    36 Tháng toàn diện
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Chính sách 0 điểm chết
+                  </div>
+                </td>
+
+                <!-- GIÁ & NGÀY MỞ BÁN -->
+                <td class="py-4 pl-4 pr-6 text-right align-middle">
+                  <div class="font-mono font-black text-slate-900 text-sm tracking-tight">
+                    8,990,000 đ
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    10/06/2022
+                  </div>
+                </td>
+              </tr>
+
+              <!-- SẢN PHẨM 4: Sony WH-1000XM4 ANC -->
+              <tr class="hover:bg-slate-50/80 transition-colors product-row" data-category="audio" data-warranty="12" data-status="selling">
+                <!-- MÃ SKU -->
+                <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+                  <div class="font-mono font-bold text-[#ea580c] text-xs">
+                    AUD-SNY-WH1000M4
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    Mã phụ: Black-VN
+                  </div>
+                </td>
+
+                <!-- SẢN PHẨM & DÒNG MÁY -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                      <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=120&h=120&fit=crop"
+                        alt="Sony WH-1000XM4" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight product-name">
+                        Sony WH-1000XM4 ANC
+                      </div>
+                      <div class="text-[11.5px] text-slate-500 mt-0.5">
+                        Chống ồn HD QN1 • LDAC
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- DANH MỤC -->
+                <td class="py-4 px-4 align-middle">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+                    </svg>
+                    <span>Âm thanh</span>
+                  </span>
+                </td>
+
+                <!-- MẪU SERIAL / KÍCH HOẠT -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-mono text-xs">
+                    <span class="text-slate-400">SN:</span> <strong class="text-slate-800">74839210-SNY</strong>
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Kích hoạt: <strong class="text-slate-800 font-bold">1,120</strong>
+                  </div>
+                </td>
+
+                <!-- GÓI BH TIÊU CHUẨN -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    12 Tháng mở rộng
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Hỗ trợ linh kiện chính hãng
+                  </div>
+                </td>
+
+                <!-- GIÁ & NGÀY MỞ BÁN -->
+                <td class="py-4 pl-4 pr-6 text-right align-middle">
+                  <div class="font-mono font-black text-slate-900 text-sm tracking-tight">
+                    6,290,000 đ
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    18/08/2021
+                  </div>
+                </td>
+              </tr>
+
+              <!-- SẢN PHẨM 5: ASUS TUF RTX 3070 OC -->
+              <tr class="hover:bg-slate-50/80 transition-colors product-row" data-category="component" data-warranty="36" data-status="selling">
+                <!-- MÃ SKU -->
+                <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+                  <div class="font-mono font-bold text-[#ea580c] text-xs">
+                    PRT-ASUS-RTX3070
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    TUF-GAMING-OC
+                  </div>
+                </td>
+
+                <!-- SẢN PHẨM & DÒNG MÁY -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                      <img src="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=120&h=120&fit=crop"
+                        alt="ASUS TUF RTX 3070" class="w-full h-full object-contain">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight product-name">
+                        ASUS TUF RTX 3070 OC
+                      </div>
+                      <div class="text-[11.5px] text-slate-500 mt-0.5">
+                        8GB GDDR6 • PCIe 4.0 • 3 Fan
+                      </div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- DANH MỤC -->
+                <td class="py-4 px-4 align-middle">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                      <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                      <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                      <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                    </svg>
+                    <span>Linh kiện</span>
+                  </span>
+                </td>
+
+                <!-- MẪU SERIAL / KÍCH HOẠT -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-mono text-xs">
+                    <span class="text-slate-400">SN:</span> <strong class="text-slate-800">N2M0CX041839</strong>
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    Kích hoạt: <strong class="text-slate-800 font-bold">512</strong>
+                  </div>
+                </td>
+
+                <!-- GÓI BH TIÊU CHUẨN -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="font-bold text-slate-900 text-xs">
+                    36 Tháng lưu hành
+                  </div>
+                  <div class="text-[11.5px] text-slate-500 mt-0.5">
+                    1 đổi 1 trong thời hạn
+                  </div>
+                </td>
+
+                <!-- GIÁ & NGÀY MỞ BÁN -->
+                <td class="py-4 pl-4 pr-6 text-right align-middle">
+                  <div class="font-mono font-black text-slate-900 text-sm tracking-tight">
+                    14,500,000 đ
+                  </div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">
+                    12/11/2020
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- FOOTER PHÂN TRANG THEO THIẾT KẾ -->
+        <div class="px-4 sm:px-6 py-4 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          
+          <!-- Thông tin số dòng -->
+          <div class="flex items-center gap-2">
+            <span>Hiển thị <strong class="text-slate-800">1 - 5</strong> trong tổng số <strong class="text-slate-800">1,482</strong> sản phẩm</span>
+            <span class="text-slate-300">•</span>
+            <div class="flex items-center gap-1.5">
+              <span>Số dòng mỗi trang:</span>
+              <select class="bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#ff6b00]">
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Các nút phân trang (|< < 1 2 3 ... 60 > >|) -->
+          <div class="flex items-center gap-1 font-bold">
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              |‹
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ‹
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg bg-[#ff6b00] text-white flex items-center justify-center shadow-xs">
+              1
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              2
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              3
+            </button>
+            <span class="w-8 h-8 flex items-center justify-center text-slate-400">...</span>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              60
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ›
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ›|
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           E. BANNER ĐỒNG BỘ KHO MÃ SERIAL & IMEI THỜI GIAN THỰC
+           (CHÍNH XÁC KHỐI DƯỚI CÙNG TRONG HÌNH ẢNH)
+      ============================================== -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        
+        <!-- Cụm thông tin bên trái -->
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-[#fff4ec] border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center flex-shrink-0 shadow-2xs">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-black text-slate-900 text-sm sm:text-base tracking-tight">
+              Đồng bộ kho mã Serial & IMEI thời gian thực
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Tích hợp cơ chế chỉ mục MongoDB Sharded Cluster đảm bảo tra cứu IMEI dưới 15ms.
+            </p>
+          </div>
+        </div>
+
+        <!-- Cụm bên phải: Index Pill + Nút Re-index -->
+        <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <div class="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl text-xs font-mono text-slate-700 shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-[#ff6b00] animate-pulse"></span>
+            <span>Index: { serialNumber: 1, imei: 1 }</span>
+          </div>
+
+          <button type="button" onclick="triggerReindex()" id="btnReindex"
+            class="bg-[#eff6ff] hover:bg-[#dbeafe] text-[#2563eb] border border-[#bfdbfe] text-xs font-bold px-4 py-2.5 rounded-xl shadow-2xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+            </svg>
+            <span>Re-index ngay</span>
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ==============================================
+       MODAL 1: THÊM SẢN PHẨM MỚI
+  ============================================== -->
+  <div id="addProductModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+        <div>
+          <h3 class="font-black text-slate-900 text-base">Thêm sản phẩm mới vào hệ thống</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Khai báo cấu hình, mã SKU định danh và tiêu chuẩn bảo hành</p>
+        </div>
+        <button type="button" onclick="closeModal('addProductModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <form id="addProductForm" onsubmit="handleSaveProduct(event)" class="space-y-4 pt-4 text-xs">
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Mã SKU định danh *</label>
+            <input type="text" id="newSku" required placeholder="VD: LAP-ASUS-G14"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold uppercase focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Phiên bản / Mã phụ</label>
+            <input type="text" id="newSubSku" placeholder="VD: Rev: 2024-B"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Tên sản phẩm & Model *</label>
+          <input type="text" id="newName" required placeholder="VD: Asus ROG Zephyrus G14 OLED"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Danh mục sản phẩm *</label>
+            <select id="newCategory" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="laptop">Laptop & PC</option>
+              <option value="phone">Điện thoại</option>
+              <option value="monitor">Màn hình & TV</option>
+              <option value="audio">Âm thanh</option>
+              <option value="component">Linh kiện</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Giá bán niêm yết (VNĐ) *</label>
+            <input type="text" id="newPrice" required placeholder="VD: 45,990,000 đ"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Thông số kỹ thuật tóm tắt</label>
+          <input type="text" id="newSpecs" placeholder="VD: Ryzen 9 8945HS • RTX 4070 • 32GB LPDDR5X"
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-normal focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Mẫu Serial / IMEI tiếp nhận *</label>
+            <input type="text" id="newSerial" required placeholder="VD: SN: ASUS-G14-99201"
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Thời hạn gói bảo hành tiêu chuẩn *</label>
+            <select id="newWarranty" required
+              class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]">
+              <option value="24">24 Tháng chính hãng</option>
+              <option value="12">12 Tháng chính hãng</option>
+              <option value="36">36 Tháng chính hãng</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeModal('addProductModal')"
+            class="px-4 py-2 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl bg-[#ff6b00] hover:bg-[#e05800] text-white font-bold cursor-pointer transition-all active:scale-95 shadow-xs">
+            Lưu sản phẩm
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 2: QUÉT MÃ VẠCH / QR CODE SERIAL
+  ============================================== -->
+  <div id="scanModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-[#fff4ec] border border-[#fed7aa] text-[#ff6b00] flex items-center justify-center font-bold">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            </svg>
+          </div>
+          <h3 class="font-black text-slate-900 text-base">Quét mã vạch / QR Serial</h3>
+        </div>
+        <button type="button" onclick="closeModal('scanModal')" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">✕</button>
+      </div>
+
+      <div class="py-5 text-center space-y-4">
+        <!-- Khung quét mô phỏng -->
+        <div class="w-64 h-48 mx-auto bg-slate-900 rounded-2xl relative overflow-hidden flex flex-col items-center justify-center border-2 border-dashed border-[#ff6b00]">
+          <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 h-0.5 bg-[#ff6b00] shadow-[0_0_12px_#ff6b00] animate-pulse"></div>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-white/40 mb-2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="7" y1="7" x2="17" y2="7"></line>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+            <line x1="7" y1="17" x2="13" y2="17"></line>
+          </svg>
+          <span class="text-white/70 text-xs font-mono">Đang tìm mã vạch...</span>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-xs text-slate-500">
+            Đặt mã vạch hoặc mã QR in trên vỏ hộp/thân máy vào khung nhận diện phía trên
+          </p>
+          <div class="flex items-center gap-2 max-w-xs mx-auto">
+            <input type="text" id="manualScanInput" placeholder="Hoặc nhập tay số Serial/IMEI..."
+              class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#ff6b00]">
+            <button type="button" onclick="handleManualScan()"
+              class="px-3.5 py-2 bg-[#ff6b00] text-white rounded-xl text-xs font-bold hover:bg-[#e05800] transition-colors cursor-pointer">
+              Tra cứu
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-3 border-t border-slate-100">
+        <button type="button" onclick="closeModal('scanModal')"
+          class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 cursor-pointer">
+          Đóng
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       4. JAVASCRIPT XỬ LÝ GIAO DIỆN & TÌM KIẾM SẢN PHẨM
+  ============================================== -->
+  <script>
+    // 1. Điều khiển Sidebar Mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('adminSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // 2. Mở / Đóng Modal
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    // 3. Mở Modal Thêm sản phẩm
+    function openAddProductModal() {
+      openModal('addProductModal');
+    }
+
+    // 4. Mở Modal Quét mã vạch / QR
+    function openScanModal() {
+      openModal('scanModal');
+    }
+
+    function handleManualScan() {
+      const val = document.getElementById('manualScanInput').value.trim();
+      if (!val) {
+        alert('Vui lòng nhập số Serial hoặc IMEI cần tra cứu!');
+        return;
+      }
+      closeModal('scanModal');
+      document.getElementById('searchInput').value = val;
+      filterProductTable();
+    }
+
+    // 5. Xuất dữ liệu sản phẩm
+    function exportProductData() {
+      alert('Đang tổng hợp và xuất danh mục 1,482 mã sản phẩm sang tệp Excel (.xlsx)...');
+    }
+
+    // 6. Chuyển đổi mật độ hiển thị (Chuẩn / Gọn)
+    function setDensity(mode) {
+      const btnStandard = document.getElementById('btnStandard');
+      const btnCompact = document.getElementById('btnCompact');
+      const rows = document.querySelectorAll('#productTable tbody tr');
+
+      if (mode === 'compact') {
+        btnCompact.className = 'px-2.5 py-1 rounded-md font-bold text-slate-900 bg-white shadow-2xs transition-all cursor-pointer';
+        btnStandard.className = 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-900 transition-all cursor-pointer';
+        rows.forEach(r => {
+          r.querySelectorAll('td').forEach(td => {
+            td.classList.remove('py-4');
+            td.classList.add('py-2');
+          });
+        });
+      } else {
+        btnStandard.className = 'px-2.5 py-1 rounded-md font-bold text-slate-900 bg-white shadow-2xs transition-all cursor-pointer';
+        btnCompact.className = 'px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-900 transition-all cursor-pointer';
+        rows.forEach(r => {
+          r.querySelectorAll('td').forEach(td => {
+            td.classList.remove('py-2');
+            td.classList.add('py-4');
+          });
+        });
+      }
+    }
+
+    // 7. Lọc bảng sản phẩm theo từ khoá, danh mục & gói bảo hành
+    function filterProductTable() {
+      const search = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+      const category = document.getElementById('categorySelect')?.value || 'all';
+      const warranty = document.getElementById('warrantyPeriodSelect')?.value || 'all';
+      const rows = document.querySelectorAll('#productTable tbody tr.product-row');
+
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const rowCategory = row.getAttribute('data-category');
+        const rowWarranty = row.getAttribute('data-warranty');
+
+        const matchSearch = !search || text.includes(search);
+        const matchCategory = category === 'all' || rowCategory === category;
+        const matchWarranty = warranty === 'all' || rowWarranty === warranty;
+
+        if (matchSearch && matchCategory && matchWarranty) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      const badge = document.getElementById('targetCountBadge');
+      if (badge) {
+        badge.innerText = `${visibleCount} sản phẩm mục tiêu`;
+      }
+    }
+
+    // 8. Thêm sản phẩm mới vào bảng
+    function handleSaveProduct(e) {
+      e.preventDefault();
+      const sku = document.getElementById('newSku').value.trim();
+      const subSku = document.getElementById('newSubSku').value.trim() || 'Rev: 2024-STD';
+      const name = document.getElementById('newName').value.trim();
+      const category = document.getElementById('newCategory').value;
+      const price = document.getElementById('newPrice').value.trim();
+      const specs = document.getElementById('newSpecs').value.trim() || 'Cấu hình tiêu chuẩn';
+      const serial = document.getElementById('newSerial').value.trim();
+      const warranty = document.getElementById('newWarranty').value;
+
+      let catLabel = 'Laptop & PC';
+      let catIcon = '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>';
+      if (category === 'phone') {
+        catLabel = 'Điện thoại';
+        catIcon = '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line>';
+      } else if (category === 'monitor') {
+        catLabel = 'Màn hình & TV';
+      } else if (category === 'audio') {
+        catLabel = 'Âm thanh';
+        catIcon = '<path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>';
+      } else if (category === 'component') {
+        catLabel = 'Linh kiện';
+        catIcon = '<rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line>';
+      }
+
+      const tbody = document.querySelector('#productTable tbody');
+      const newTr = document.createElement('tr');
+      newTr.className = 'hover:bg-slate-50/80 transition-colors product-row bg-emerald-50/20';
+      newTr.setAttribute('data-category', category);
+      newTr.setAttribute('data-warranty', warranty);
+      newTr.setAttribute('data-status', 'selling');
+
+      newTr.innerHTML = `
+        <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
+          <div class="font-mono font-bold text-[#ea580c] text-xs">
+            ${sku}
+          </div>
+          <div class="text-[11px] text-slate-400 mt-0.5">
+            ${subSku}
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1 text-xs">
+              NEW
+            </div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm tracking-tight product-name">
+                ${name}
+              </div>
+              <div class="text-[11.5px] text-slate-500 mt-0.5">
+                ${specs}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              ${catIcon}
+            </svg>
+            <span>${catLabel}</span>
+          </span>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="font-mono text-xs">
+            <span class="text-slate-400">SN:</span> <strong class="text-slate-800">${serial}</strong>
+          </div>
+          <div class="text-[11.5px] text-slate-500 mt-0.5">
+            Kích hoạt: <strong class="text-slate-800 font-bold">1</strong>
+          </div>
+        </td>
+        <td class="py-4 px-4 align-middle">
+          <div class="font-bold text-slate-900 text-xs">
+            ${warranty} Tháng chính hãng
+          </div>
+          <div class="text-[11.5px] text-slate-500 mt-0.5">
+            Gói bảo hành điện tử tiêu chuẩn
+          </div>
+        </td>
+        <td class="py-4 pl-4 pr-6 text-right align-middle">
+          <div class="font-mono font-black text-slate-900 text-sm tracking-tight">
+            ${price}
+          </div>
+          <div class="text-[11px] text-slate-400 mt-0.5">
+            Hôm nay
+          </div>
+        </td>
+      `;
+
+      tbody.insertBefore(newTr, tbody.firstChild);
+      closeModal('addProductModal');
+      document.getElementById('addProductForm').reset();
+      alert(`Đã thêm mã sản phẩm mới [${sku}] - ${name} vào hệ thống thành công!`);
+      filterProductTable();
+    }
+
+    // 9. Re-index kho mã Serial & IMEI MongoDB
+    function triggerReindex() {
+      const btn = document.getElementById('btnReindex');
+      btn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span>Đang re-index...</span>
+      `;
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span>Re-index ngay</span>
+        `;
+        btn.disabled = false;
+        alert('Tái lập chỉ mục MongoDB thành công! Độ trễ truy vấn IMEI đạt 4ms.');
+      }, 1200);
+    }
+  </script>
+
+</body>
+
+</html>
+

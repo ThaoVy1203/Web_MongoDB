@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Tổng quan Hệ thống Quản trị & Vận hành Bảo hành - EXED OPS ADMIN</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ff6b00",
+            "primary-dark": "#e05800",
+            "primary-light": "#fff7ed",
+            "topbar-dark": "#2a1212",
+            "sidebar-active-bg": "#fbeee6",
+            "sidebar-active-text": "#8B2500"
+          },
+          fontFamily: {
+            "sans": ["Plus Jakarta Sans", "Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @layer base {
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+    }
+
+    /* Tùy chỉnh thanh cuộn mảnh */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Hiệu ứng biểu đồ cột */
+    .chart-bar {
+      transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease;
+    }
+    .chart-bar:hover {
+      transform: scaleY(1.03);
+      filter: brightness(1.08);
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#111315] antialiased min-h-screen flex flex-col selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
+
+  <!-- ==============================================
+       1. TOP HEADER TOÀN MÀN HÌNH (DARK BURGUNDY #2a1212)
+  ============================================== -->
+  <header class="h-20 bg-[#2a1212] text-white sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between border-b border-black/30 shadow-xs">
+    
+    <!-- Phía trái: Logo11 nhỏ gọn + Badge ADMIN -->
+    <div class="flex items-center gap-3">
+      <!-- Nút mở drawer trên mobile -->
+      <button type="button" onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white p-1.5 mr-1 cursor-pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/admin" class="flex items-center group py-1">
+        <img src="/images/logo11.png" alt="WarrantyOps Logo" class="h-10 sm:h-11 object-contain transition-transform group-hover:scale-105"
+          onerror="this.onerror=null; this.src='/images/logo1.png';">
+      </a>
+
+      <span class="bg-black/40 text-white/90 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 tracking-wider uppercase ml-1 shadow-2xs">
+        ADMIN
+      </span>
+    </div>
+
+    <!-- Phía phải: Chuông thông báo + Profile Admin01 -->
+    <div class="flex items-center gap-4 sm:gap-5">
+      
+      <!-- Chuông thông báo có chấm cam -->
+      <button type="button" onclick="alert('Hệ thống hoạt động bình thường, không có vi phạm SLA!')"
+        class="relative text-white/80 hover:text-white transition-colors p-1" title="Thông báo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+      </button>
+
+      <!-- Profile admin01 -->
+      <div class="flex items-center gap-2 text-white/90 text-xs font-bold cursor-pointer hover:text-white transition-colors">
+        <div class="w-7 h-7 rounded-full bg-[#ff6b00]/25 text-[#ff6b00] border border-[#ff6b00]/40 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span>admin01</span>
+      </div>
+
+    </div>
+
+  </header>
+
+  <!-- ==============================================
+       CONTAINER DƯỚI TOPBAR: SIDEBAR + MAIN CONTENT
+  ============================================== -->
+  <div class="flex-1 flex min-h-[calc(100vh-5rem)] relative">
+
+    <!-- ==============================================
+         2. SIDEBAR TRÁI (WHITE THEME / MENU QUẢN LÝ)
+    ============================================== -->
+    <aside id="adminSidebar"
+      class="w-60 lg:w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between fixed lg:sticky top-20 bottom-0 left-0 z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0 h-[calc(100vh-5rem)] overflow-y-auto">
+      
+      <!-- Danh sách menu điều hướng -->
+      <div class="p-3.5 sm:p-4">
+        
+        <nav class="space-y-1">
+          
+          <!-- 1. Tổng quan (Dashboard) - ACTIVE (Nền cam nhạt #fbeee6, Chữ nâu đỏ #8B2500) -->
+          <a href="/admin"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-[#fbeee6] text-[#8B2500] font-extrabold text-xs transition-all shadow-2xs">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Tổng quan (Dashboard)</span>
+          </a>
+
+          <!-- 2. Quản lý khách hàng (Badge 1.4k) -->
+          <a href="/admin/khach-hang"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Quản lý khách hàng</span>
+            </div>
+            <span class="bg-slate-100 text-slate-500 font-semibold text-[10px] px-1.5 py-0.5 rounded">1.4k</span>
+          </a>
+
+          <!-- 3. Quản lý sản phẩm -->
+          <a href="/admin/san-pham"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span>Quản lý sản phẩm</span>
+          </a>
+
+          <!-- 4. Hồ sơ bảo hành -->
+          <a href="/admin/ho-so-bao-hanh"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Hồ sơ bảo hành</span>
+          </a>
+
+          <!-- 5. Yêu cầu & Xử lý phiếu (Chấm cam nhấp nháy) -->
+          <a href="/admin/yeu-cau-bao-hanh"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="13" x2="13" y2="13"></line>
+              </svg>
+              <span>Yêu cầu & Xử lý phiếu</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#ff6b00] ring-4 ring-[#ff6b00]/20 animate-pulse"></span>
+          </a>
+
+          <!-- 6. Thống kê & Báo cáo -->
+          <a href="/admin/thong-ke"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Thống kê & Báo cáo</span>
+          </a>
+
+        </nav>
+
+      </div>
+
+      <!-- Đáy Sidebar: Chip MongoDB Online -->
+      <div class="p-3.5 sm:p-4 border-t border-slate-100">
+        <div class="bg-white border border-slate-200/90 rounded-full px-3.5 py-2 flex items-center justify-between shadow-xs text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-slate-700 font-semibold text-[11px]">MongoDB • OnLine</span>
+          </div>
+          <div class="text-slate-400">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Overlay cho mobile khi mở sidebar -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+      class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden backdrop-blur-xs"></div>
+
+    <!-- ==============================================
+         3. MAIN CONTENT KHU VỰC CHÍNH BÊN PHẢI
+    ============================================== -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-7 space-y-5 min-w-0">
+
+      <!-- TIÊU ĐỀ TRANG & BỘ LỌC THỜI GIAN -->
+      <div class="space-y-3">
+        
+        <!-- Hàng 1: Tiêu đề TỔNG QUAN HỆ THỐNG nằm ngang chung hàng với bg-slate filter pills -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 class="text-2xl sm:text-[28px] font-black text-[#2a1212] tracking-tight uppercase">
+            TỔNG QUAN HỆ THỐNG
+          </h1>
+
+          <!-- Segmented Filter Pills (bg-slate) -->
+          <div class="bg-slate-200/70 p-1 rounded-xl flex items-center gap-1 text-xs font-bold w-fit">
+            <button type="button" onclick="setFilter(this, 'today')"
+              class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+              Hôm nay
+            </button>
+            <button type="button" onclick="setFilter(this, '7days')"
+              class="px-3 py-1.5 rounded-lg bg-white text-[#d95800] shadow-xs transition-all cursor-pointer">
+              7 ngày qua
+            </button>
+            <button type="button" onclick="setFilter(this, 'month')"
+              class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
+              Tháng này
+            </button>
+            <button type="button" onclick="setFilter(this, 'custom')"
+              class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all cursor-pointer flex items-center gap-1">
+              <span>Tùy chỉnh</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hàng 2: Nằm phía dưới gồm "Xuất báo cáo" và "Đồng bộ MongoDB" -->
+        <div class="flex items-center justify-end gap-2 pt-0.5">
+          <button type="button" onclick="exportReport()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Xuất báo cáo</span>
+          </button>
+
+          <button type="button" onclick="syncMongoDB(this)"
+            class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs font-bold px-3.5 py-1.5 sm:py-2 rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+            <span>Đồng bộ MongoDB</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           ROW 1: 4 THẺ METRIC KPI (CHIỀU CAO THẤP GỌN, KHÔNG ICON)
+      ============================================== -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        
+        <!-- CARD 1: HỒ SƠ BẢO HÀNH CÒN HẠN -->
+        <div class="bg-white rounded-xl py-3 px-4 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+          <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+            HỒ SƠ BẢO HÀNH CÒN HẠN
+          </div>
+          <div class="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight leading-tight mb-1">
+            14,820
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10.5px]">
+              ↑ +12.4%
+            </span>
+            <span class="text-slate-400 font-medium text-[11px]">So với tháng trước</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: PHIẾU YÊU CẦU ĐANG XỬ LÝ -->
+        <div class="bg-white rounded-xl py-3 px-4 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+          <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+            PHIẾU YÊU CẦU ĐANG XỬ LÝ
+          </div>
+          <div class="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight leading-tight mb-1">
+            68
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="inline-flex items-center bg-rose-50 border border-rose-200 text-rose-700 font-bold px-1.5 py-0.5 rounded text-[10.5px]">
+              14 phiếu quá SLA
+            </span>
+            <span class="text-rose-500 font-semibold text-[11px]">Cần xử lý gấp</span>
+          </div>
+        </div>
+
+        <!-- CARD 3: TỶ LỆ HOÀN TẤT ĐÚNG HẠN (SLA) -->
+        <div class="bg-white rounded-xl py-3 px-4 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+          <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+            TỶ LỆ HOÀN TẤT ĐÚNG HẠN (SLA)
+          </div>
+          <div class="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight leading-tight mb-1">
+            96.2%
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="inline-flex items-center gap-0.5 bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded text-[10.5px]">
+              ↑ +1.8%
+            </span>
+            <span class="text-slate-400 font-medium text-[11px]">Mục tiêu: 95.0%</span>
+          </div>
+        </div>
+
+        <!-- CARD 4: KHÁCH HÀNG ĐANG KÍCH HOẠT -->
+        <div class="bg-white rounded-xl py-3 px-4 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+          <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+            KHÁCH HÀNG ĐANG KÍCH HOẠT
+          </div>
+          <div class="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight leading-tight mb-1">
+            9,250
+          </div>
+          <div class="flex items-center gap-1.5 text-xs">
+            <span class="inline-flex items-center bg-slate-100 text-slate-700 font-bold px-1.5 py-0.5 rounded text-[10.5px]">
+              +85 tuần này
+            </span>
+            <span class="text-slate-400 font-medium text-[11px]">Toàn hệ thống</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           ROW 2: BIỂU ĐỒ BAR CHART & PHÂN LOẠI LỖI (DONUT)
+      ============================================== -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- CỘT TRÁI (LG:COL-SPAN-8): BIỂU ĐỒ CỘT THEO THÁNG -->
+        <div class="lg:col-span-8 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          
+          <!-- Header biểu đồ & Legend -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                Tình trạng bảo hành theo tháng (2024)
+              </h2>
+              <p class="text-xs text-slate-400 font-medium mt-0.5">
+                So sánh tương quan giữa số lượng tiếp nhận mới, hoàn tất xử lý và đổi mới linh kiện
+              </p>
+            </div>
+
+            <!-- Legend 3 nhóm màu -->
+            <div class="flex items-center gap-3 text-xs font-semibold flex-wrap">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-xs bg-[#ff6b00]"></span>
+                <span class="text-slate-600">Tiếp nhận (Total)</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-xs bg-[#111315]"></span>
+                <span class="text-slate-600">Hoàn tất sửa</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-xs bg-[#fbd38d]"></span>
+                <span class="text-slate-600">Đổi linh kiện</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Khu vực Bar Chart 6 tháng (T01 - T06) -->
+          <div class="h-64 sm:h-72 w-full flex items-end justify-between pt-6 pb-2 px-2 sm:px-6 border-b border-slate-100 gap-2 sm:gap-4">
+            
+            <!-- THÁNG 1: T01 -->
+            <div class="flex-1 flex flex-col items-center h-full justify-end group">
+              <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                <div class="w-2.5 sm:w-3.5 bg-[#ff6b00] rounded-t-sm chart-bar shadow-2xs" style="height: 48%;" title="T01 - Tiếp nhận: 480 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#111315] rounded-t-sm chart-bar shadow-2xs" style="height: 40%;" title="T01 - Hoàn tất: 400 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#fbd38d] rounded-t-sm chart-bar shadow-2xs" style="height: 18%;" title="T01 - Đổi linh kiện: 180"></div>
+              </div>
+              <span class="text-xs font-semibold text-slate-500 mt-3 group-hover:text-slate-900">T01</span>
+            </div>
+
+            <!-- THÁNG 2: T02 -->
+            <div class="flex-1 flex flex-col items-center h-full justify-end group">
+              <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                <div class="w-2.5 sm:w-3.5 bg-[#ff6b00] rounded-t-sm chart-bar shadow-2xs" style="height: 60%;" title="T02 - Tiếp nhận: 600 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#111315] rounded-t-sm chart-bar shadow-2xs" style="height: 54%;" title="T02 - Hoàn tất: 540 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#fbd38d] rounded-t-sm chart-bar shadow-2xs" style="height: 22%;" title="T02 - Đổi linh kiện: 220"></div>
+              </div>
+              <span class="text-xs font-semibold text-slate-500 mt-3 group-hover:text-slate-900">T02</span>
+            </div>
+
+            <!-- THÁNG 3: T03 -->
+            <div class="flex-1 flex flex-col items-center h-full justify-end group">
+              <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                <div class="w-2.5 sm:w-3.5 bg-[#ff6b00] rounded-t-sm chart-bar shadow-2xs" style="height: 70%;" title="T03 - Tiếp nhận: 700 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#111315] rounded-t-sm chart-bar shadow-2xs" style="height: 64%;" title="T03 - Hoàn tất: 640 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#fbd38d] rounded-t-sm chart-bar shadow-2xs" style="height: 26%;" title="T03 - Đổi linh kiện: 260"></div>
+              </div>
+              <span class="text-xs font-semibold text-slate-500 mt-3 group-hover:text-slate-900">T03</span>
+            </div>
+
+            <!-- THÁNG 4: T04 -->
+            <div class="flex-1 flex flex-col items-center h-full justify-end group">
+              <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                <div class="w-2.5 sm:w-3.5 bg-[#ff6b00] rounded-t-sm chart-bar shadow-2xs" style="height: 56%;" title="T04 - Tiếp nhận: 560 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#111315] rounded-t-sm chart-bar shadow-2xs" style="height: 50%;" title="T04 - Hoàn tất: 500 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#fbd38d] rounded-t-sm chart-bar shadow-2xs" style="height: 30%;" title="T04 - Đổi linh kiện: 300"></div>
+              </div>
+              <span class="text-xs font-semibold text-slate-500 mt-3 group-hover:text-slate-900">T04</span>
+            </div>
+
+            <!-- THÁNG 5: T05 -->
+            <div class="flex-1 flex flex-col items-center h-full justify-end group">
+              <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                <div class="w-2.5 sm:w-3.5 bg-[#ff6b00] rounded-t-sm chart-bar shadow-2xs" style="height: 74%;" title="T05 - Tiếp nhận: 740 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#111315] rounded-t-sm chart-bar shadow-2xs" style="height: 68%;" title="T05 - Hoàn tất: 680 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#fbd38d] rounded-t-sm chart-bar shadow-2xs" style="height: 34%;" title="T05 - Đổi linh kiện: 340"></div>
+              </div>
+              <span class="text-xs font-semibold text-slate-500 mt-3 group-hover:text-slate-900">T05</span>
+            </div>
+
+            <!-- THÁNG 6: T06 (Nay) - CAO NHẤT -->
+            <div class="flex-1 flex flex-col items-center h-full justify-end group">
+              <div class="w-full flex items-end justify-center gap-1 sm:gap-1.5 h-full">
+                <div class="w-2.5 sm:w-3.5 bg-[#ff6b00] rounded-t-sm chart-bar shadow-2xs" style="height: 88%;" title="T06 (Nay) - Tiếp nhận: 880 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#111315] rounded-t-sm chart-bar shadow-2xs" style="height: 78%;" title="T06 (Nay) - Hoàn tất: 780 phiếu"></div>
+                <div class="w-2.5 sm:w-3.5 bg-[#fbd38d] rounded-t-sm chart-bar shadow-2xs" style="height: 44%;" title="T06 (Nay) - Đổi linh kiện: 440"></div>
+              </div>
+              <span class="text-xs font-bold text-[#ff6b00] mt-3">T06 (Nay)</span>
+            </div>
+
+          </div>
+
+          <!-- Footer của Biểu đồ -->
+          <div class="flex items-center justify-between pt-4 text-xs">
+            <span class="text-slate-500 font-medium">Tỷ lệ hoàn thành sửa chữa trung bình đạt <strong class="text-slate-800">94.8%</strong></span>
+            <a href="javascript:void(0)" onclick="alert('Đang tải báo cáo phân tích tương quan 6 tháng...')"
+              class="text-[#ff6b00] hover:text-[#e05800] font-bold inline-flex items-center gap-1">
+              <span>Xem phân tích chi tiết</span>
+              <span>→</span>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- CỘT PHẢI (LG:COL-SPAN-4): BIỂU ĐỒ TRÒN PHÂN LOẠI LỖI (DONUT) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+              Phân loại lỗi kỹ thuật
+            </h2>
+            <p class="text-xs text-slate-400 font-medium mt-0.5">
+              Thống kê theo 2,410 lượt tiếp nhận
+            </p>
+          </div>
+
+          <!-- Donut SVG Chart căn giữa -->
+          <div class="relative w-44 h-44 sm:w-48 sm:h-48 mx-auto my-4 flex items-center justify-center">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+              <!-- Vòng nền xám mờ -->
+              <circle cx="50" cy="50" r="38" fill="transparent" stroke="#f1f5f9" stroke-width="14"></circle>
+              
+              <!-- Segment 1: Màn hình (32%) - Cam #ff6b00 -->
+              <circle cx="50" cy="50" r="38" fill="transparent" stroke="#ff6b00" stroke-width="14"
+                stroke-dasharray="76.4 238.8" stroke-dashoffset="0"></circle>
+
+              <!-- Segment 2: Nguồn & Pin (28%) - Đen #111315 -->
+              <circle cx="50" cy="50" r="38" fill="transparent" stroke="#111315" stroke-width="14"
+                stroke-dasharray="66.8 238.8" stroke-dashoffset="-76.4"></circle>
+
+              <!-- Segment 3: Bo mạch (22%) - Nâu cam #d97706 -->
+              <circle cx="50" cy="50" r="38" fill="transparent" stroke="#d97706" stroke-width="14"
+                stroke-dasharray="52.5 238.8" stroke-dashoffset="-143.2"></circle>
+
+              <!-- Segment 4: Linh kiện khác (18%) - Xám #94a3b8 -->
+              <circle cx="50" cy="50" r="38" fill="transparent" stroke="#cbd5e1" stroke-width="14"
+                stroke-dasharray="43.1 238.8" stroke-dashoffset="-195.7"></circle>
+            </svg>
+
+            <!-- Text tâm Donut -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+              <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">32%</span>
+              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">LỖI MÀN HÌNH</span>
+            </div>
+          </div>
+
+          <!-- Danh sách phân loại 4 mục -->
+          <div class="space-y-2.5 pt-2 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#ff6b00]"></span>
+                <span class="text-slate-600 font-semibold">Màn hình, Cảm ứng</span>
+              </div>
+              <span class="font-bold text-slate-800">32% <span class="text-slate-400 font-normal">(771)</span></span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#111315]"></span>
+                <span class="text-slate-600 font-semibold">Nguồn & Pin sạc</span>
+              </div>
+              <span class="font-bold text-slate-800">28% <span class="text-slate-400 font-normal">(674)</span></span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#d97706]"></span>
+                <span class="text-slate-600 font-semibold">Bo mạch chính (Mainboard)</span>
+              </div>
+              <span class="font-bold text-slate-800">22% <span class="text-slate-400 font-normal">(530)</span></span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#cbd5e1]"></span>
+                <span class="text-slate-600 font-semibold">Linh kiện khác & Ngoại quan</span>
+              </div>
+              <span class="font-bold text-slate-800">18% <span class="text-slate-400 font-normal">(435)</span></span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           ROW 3: BẢNG PHIẾU TIẾP NHẬN & CẢNH BÁO / MONGODB
+      ============================================== -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        
+        <!-- CỘT TRÁI (LG:COL-SPAN-8): BẢNG PHIẾU BẢO HÀNH MỚI TIẾP NHẬN -->
+        <div class="lg:col-span-8 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+          
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-[#fff7ed] text-[#ff6b00] flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  Phiếu bảo hành mới tiếp nhận
+                </h2>
+                <p class="text-xs text-slate-400 font-medium">
+                  5 yêu cầu hỗ trợ kỹ thuật gần nhất cần điều phối
+                </p>
+              </div>
+            </div>
+
+            <a href="/theo-doi" class="text-xs font-bold text-[#ff6b00] hover:text-[#e05800] transition-colors">
+              Xem tất cả (68) &gt;
+            </a>
+          </div>
+
+          <!-- Bảng danh sách phiếu -->
+          <div class="overflow-x-auto -mx-6 px-6">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <th class="py-3 px-3">MÃ PHIẾU</th>
+                  <th class="py-3 px-3">KHÁCH HÀNG</th>
+                  <th class="py-3 px-3">SẢN PHẨM</th>
+                  <th class="py-3 px-3">MÔ TẢ LỖI</th>
+                  <th class="py-3 px-3">THỜI GIAN</th>
+                  <th class="py-3 px-3 text-right">TRẠNG THÁI</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-medium">
+                
+                <!-- HÀNG 1: DELL XPS 15 -->
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3.5 px-3 font-mono font-bold text-[#ff6b00]">#TKT-2024-8891</td>
+                  <td class="py-3.5 px-3 font-semibold text-slate-900">Trần Anh Tuấn</td>
+                  <td class="py-3.5 px-3">
+                    <div class="font-bold text-slate-800">Dell XPS 15 9530</div>
+                    <div class="text-[10px] font-mono text-slate-400">SN: DL-992810</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500 max-w-[200px] truncate" title="Sọc màn hình dọc, chớp giật">
+                    Sọc màn hình dọc, chớp...
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">10 phút trước</td>
+                  <td class="py-3.5 px-3 text-right whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#fff7ed] text-[#c2410c] border border-[#fed7aa]">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#ff6b00]"></span>
+                      Đang kiểm tra
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- HÀNG 2: IPHONE 15 PRO MAX -->
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3.5 px-3 font-mono font-bold text-[#ff6b00]">#TKT-2024-8890</td>
+                  <td class="py-3.5 px-3 font-semibold text-slate-900">Lê Hoàng Nam</td>
+                  <td class="py-3.5 px-3">
+                    <div class="font-bold text-slate-800">iPhone 15 Pro Max</div>
+                    <div class="text-[10px] font-mono text-slate-400">IMEI: 3589211029</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500 max-w-[200px] truncate" title="Không nhận sạc cáp, nóng máy">
+                    Không nhận sạc cáp, nón...
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">32 phút trước</td>
+                  <td class="py-3.5 px-3 text-right whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                      Chờ linh kiện
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- HÀNG 3: MACBOOK AIR M2 -->
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3.5 px-3 font-mono font-bold text-[#ff6b00]">#TKT-2024-8889</td>
+                  <td class="py-3.5 px-3 font-semibold text-slate-900">Đặng Thảo Vy</td>
+                  <td class="py-3.5 px-3">
+                    <div class="font-bold text-slate-800">MacBook Air M2 13"</div>
+                    <div class="text-[10px] font-mono text-slate-400">SN: C02GN19PK</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500 max-w-[200px] truncate" title="Liệt bàn phím, kẹt phím Space">
+                    Liệt bàn phím, kẹt phím S...
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">1 giờ trước</td>
+                  <td class="py-3.5 px-3 text-right whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                      Đã phân phối
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- HÀNG 4: SAMSUNG GALAXY S24 ULTRA -->
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3.5 px-3 font-mono font-bold text-[#ff6b00]">#TKT-2024-8888</td>
+                  <td class="py-3.5 px-3 font-semibold text-slate-900">Vũ Tiến Dũng</td>
+                  <td class="py-3.5 px-3">
+                    <div class="font-bold text-slate-800">Samsung Galaxy S24 Ultra</div>
+                    <div class="text-[10px] font-mono text-slate-400">IMEI: 9940129381</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500 max-w-[200px] truncate" title="Lỗi lấy nét camera chính">
+                    Lỗi lấy nét camera chính...
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">2 giờ trước</td>
+                  <td class="py-3.5 px-3 text-right whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#fff7ed] text-[#c2410c] border border-[#fed7aa]">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#ff6b00]"></span>
+                      Đang kiểm tra
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- HÀNG 5: ASUS ROG ZEPHYRUS G14 -->
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                  <td class="py-3.5 px-3 font-mono font-bold text-[#ff6b00]">#TKT-2024-8887</td>
+                  <td class="py-3.5 px-3 font-semibold text-slate-900">Phạm Hải Yến</td>
+                  <td class="py-3.5 px-3">
+                    <div class="font-bold text-slate-800">Asus ROG Zephyrus G14</div>
+                    <div class="text-[10px] font-mono text-slate-400">SN: AS-R05G14-22</div>
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-500 max-w-[200px] truncate" title="Quạt tản nhiệt kêu, quá nhiệt">
+                    Quạt tản nhiệt kêu, quá n...
+                  </td>
+                  <td class="py-3.5 px-3 text-slate-400 whitespace-nowrap">3 giờ trước</td>
+                  <td class="py-3.5 px-3 text-right whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                      Đã phân phối
+                    </span>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Phân trang đáy bảng -->
+          <div class="flex items-center justify-between pt-4 border-t border-slate-100 text-xs text-slate-500 mt-2">
+            <span>Hiển thị <strong class="text-slate-800">5 / 68</strong> phiếu tiếp nhận</span>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="alert('Đang ở trang đầu tiên!')"
+                class="px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold cursor-pointer">
+                Trước
+              </button>
+              <button type="button" onclick="alert('Đang chuyển sang trang tiếp theo...')"
+                class="px-3 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 font-semibold cursor-pointer">
+                Tiếp theo
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CỘT PHẢI (LG:COL-SPAN-4): 2 WIDGETS -->
+        <div class="lg:col-span-4 space-y-5">
+          
+          <!-- WIDGET 1: CẢNH BÁO SẮP HẾT HẠN -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="text-amber-500">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 1 1.71 3h16.94a2 2 0 0 1 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </span>
+                <h3 class="font-bold text-slate-900 text-sm">Cảnh báo sắp hết hạn</h3>
+              </div>
+              <span class="bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                4 thiết bị
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 font-medium mb-4">
+              Sản phẩm kết thúc thời hạn bảo hành trong 7 ngày tới
+            </p>
+
+            <!-- Danh sách 4 thiết bị -->
+            <div class="space-y-3 divide-y divide-slate-100 text-xs">
+              
+              <div class="pt-2.5 first:pt-0 flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-slate-800">Sony WH-1000XM5</div>
+                  <div class="text-[11px] text-slate-400">KH: Bùi Quốc Huy</div>
+                </div>
+                <div class="text-right">
+                  <span class="text-rose-600 font-bold text-xs block">Còn 2 ngày</span>
+                  <span class="text-[10px] text-slate-400">0912.***.892</span>
+                </div>
+              </div>
+
+              <div class="pt-2.5 flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-slate-800">iPad Pro M2 11"</div>
+                  <div class="text-[11px] text-slate-400">KH: Nguyễn Mai Anh</div>
+                </div>
+                <div class="text-right">
+                  <span class="text-rose-600 font-bold text-xs block">Còn 3 ngày</span>
+                  <span class="text-[10px] text-slate-400">0985.***.112</span>
+                </div>
+              </div>
+
+              <div class="pt-2.5 flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-slate-800">Smart TV LG OLED 65"</div>
+                  <div class="text-[11px] text-slate-400">KH: Hoàng Văn Đức</div>
+                </div>
+                <div class="text-right">
+                  <span class="text-amber-600 font-bold text-xs block">Còn 5 ngày</span>
+                  <span class="text-[10px] text-slate-400">0904.***.773</span>
+                </div>
+              </div>
+
+              <div class="pt-2.5 flex items-center justify-between">
+                <div>
+                  <div class="font-bold text-slate-800">ThinkPad X1 Carbon Gen 11</div>
+                  <div class="text-[11px] text-slate-400">KH: Cty CP Công Nghệ Next</div>
+                </div>
+                <div class="text-right">
+                  <span class="text-amber-600 font-bold text-xs block">Còn 6 ngày</span>
+                  <span class="text-[10px] text-slate-400">024.***.889</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Nút Gửi SMS/Email nhắc bảo dưỡng -->
+            <button type="button" onclick="alert('Đã lên lịch gửi SMS và Email tự động thông báo nhắc gia hạn cho 4 khách hàng!')"
+              class="w-full mt-4 bg-amber-50/50 hover:bg-amber-100/60 text-amber-900 border border-amber-200/80 font-bold text-xs py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              <span>Gửi SMS/Email nhắc bảo dưỡng</span>
+            </button>
+          </div>
+
+          <!-- WIDGET 2: CỤM MONGODB CLUSTER (DARK THEME CARD) -->
+          <div class="bg-[#111315] rounded-2xl p-5 border border-slate-800 text-white shadow-md relative overflow-hidden">
+            
+            <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-[#ff6b00]/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-[#ff6b00]">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                  </svg>
+                </div>
+                <h3 class="font-extrabold text-sm tracking-tight text-white">Cụm MongoDB Cluster</h3>
+              </div>
+              <span class="inline-flex items-center gap-1.5 bg-[#ff6b00]/20 border border-[#ff6b00]/40 text-[#ff6b00] font-bold text-[10px] px-2 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#ff6b00] animate-ping"></span>
+                Primary
+              </span>
+            </div>
+
+            <!-- Lưới thông số 4 ô -->
+            <div class="grid grid-cols-2 gap-3 text-xs mb-4">
+              <div class="bg-white/5 p-2.5 rounded-xl border border-white/5">
+                <span class="text-slate-400 text-[10px] block">Replica Set</span>
+                <span class="font-mono font-bold text-slate-200">rs0-prod.aws-ap</span>
+              </div>
+              <div class="bg-white/5 p-2.5 rounded-xl border border-white/5">
+                <span class="text-slate-400 text-[10px] block">Độ trễ (Ping)</span>
+                <span class="font-mono font-bold text-emerald-400">18 ms</span>
+              </div>
+              <div class="bg-white/5 p-2.5 rounded-xl border border-white/5">
+                <span class="text-slate-400 text-[10px] block">Dung lượng docs</span>
+                <span class="font-mono font-bold text-slate-200">4.2 GB</span>
+              </div>
+              <div class="bg-white/5 p-2.5 rounded-xl border border-white/5">
+                <span class="text-slate-400 text-[10px] block">Kết nối mở</span>
+                <span class="font-mono font-bold text-slate-200">142 / 500</span>
+              </div>
+            </div>
+
+            <!-- Dòng đáy: Engine & Chi tiết -->
+            <div class="flex items-center justify-between text-xs pt-2 border-t border-white/10 text-slate-400">
+              <span class="text-[11px]">Engine: WiredTiger v7.0.8</span>
+              <a href="/sync-mongodb" class="text-[#ff6b00] hover:text-white font-bold text-xs transition-colors">
+                Logic chi tiết →
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- JAVASCRIPT ĐIỀU KHIỂN GIAO DIỆN -->
+  <script>
+    // Toggle Mobile Sidebar
+    function toggleSidebar() {
+      const sidebar = document.getElementById('adminSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    // Lọc theo thời gian (Segmented filter pills)
+    function setFilter(btn, type) {
+      const parent = btn.parentElement;
+      const allButtons = parent.querySelectorAll('button');
+      allButtons.forEach(b => {
+        b.className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
+      });
+      btn.className = 'px-3 py-1.5 rounded-lg bg-white text-[#d95800] shadow-xs transition-all cursor-pointer font-bold';
+    }
+
+    // Xuất báo cáo CSV
+    function exportReport() {
+      alert('Đang tổng hợp dữ liệu bảo hành 6 tháng gần nhất và xuất định dạng Excel/CSV...');
+    }
+
+    // Đồng bộ MongoDB
+    function syncMongoDB(btn) {
+      btn.classList.add('opacity-75', 'animate-pulse');
+      setTimeout(() => {
+        btn.classList.remove('opacity-75', 'animate-pulse');
+        alert('Đã đồng bộ cơ sở dữ liệu MongoDB thành công! Hệ thống hoạt động với độ trễ 18ms.');
+      }, 700);
+    }
+  </script>
+
+</body>
+
+</html>

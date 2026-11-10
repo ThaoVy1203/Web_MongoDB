@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Quản lý Khách hàng - WarrantyOps Admin</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans, Hanken Grotesk & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#ff6b00",
+            "primary-dark": "#d95800",
+            "brand-dark": "#111315",
+            "header-bg": "#2a1212",
+            "brand-brown": "#7A3000"
+          },
+          fontFamily: {
+            "sans": ["Plus Jakarta Sans", "Hanken Grotesk", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Modal Animation */
+    .modal-backdrop {
+      background: rgba(17, 19, 21, 0.6);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+
+<body class="bg-[#f8fafc] text-[#111315] antialiased min-h-screen flex flex-col selection:bg-[#ff6b00]/20 selection:text-[#ff6b00]">
+
+  <!-- ==============================================
+       1. TOP HEADER TOÀN MÀN HÌNH (DARK BURGUNDY #2a1212)
+  ============================================== -->
+  <header class="h-20 bg-[#2a1212] text-white sticky top-0 z-50 px-4 sm:px-6 flex items-center justify-between border-b border-black/30 shadow-xs">
+    
+    <!-- Phía trái: Logo11 nhỏ gọn + Badge ADMIN -->
+    <div class="flex items-center gap-3">
+      <!-- Nút mở drawer trên mobile -->
+      <button type="button" onclick="toggleSidebar()" class="lg:hidden text-white/80 hover:text-white p-1.5 mr-1 cursor-pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+
+      <a href="/admin" class="flex items-center group py-1">
+        <img src="/images/logo11.png" alt="WarrantyOps Logo" class="h-10 sm:h-11 object-contain transition-transform group-hover:scale-105"
+          onerror="this.onerror=null; this.src='/images/logo1.png';">
+      </a>
+
+      <span class="bg-black/40 text-white/90 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 tracking-wider uppercase ml-1 shadow-2xs">
+        ADMIN
+      </span>
+    </div>
+
+    <!-- Phía phải: Chuông thông báo + Profile Admin01 -->
+    <div class="flex items-center gap-4 sm:gap-5">
+      
+      <!-- Chuông thông báo có chấm cam -->
+      <button type="button" onclick="alert('Hệ thống hoạt động bình thường, không có khách hàng quá hạn SLA!')"
+        class="relative text-white/80 hover:text-white transition-colors p-1" title="Thông báo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-[#ff6b00]"></span>
+      </button>
+
+      <!-- Profile admin01 -->
+      <div class="flex items-center gap-2 text-white/90 text-xs font-bold cursor-pointer hover:text-white transition-colors">
+        <div class="w-7 h-7 rounded-full bg-[#ff6b00]/25 text-[#ff6b00] border border-[#ff6b00]/40 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <span>admin01</span>
+      </div>
+
+    </div>
+
+  </header>
+
+  <!-- ==============================================
+       CONTAINER DƯỚI TOPBAR: SIDEBAR + MAIN CONTENT
+  ============================================== -->
+  <div class="flex-1 flex min-h-[calc(100vh-5rem)] relative">
+
+    <!-- ==============================================
+         2. SIDEBAR TRÁI (WHITE THEME / MENU QUẢN LÝ)
+    ============================================== -->
+    <aside id="adminSidebar"
+      class="w-60 lg:w-64 bg-white border-r border-slate-200/90 flex flex-col justify-between fixed lg:sticky top-20 bottom-0 left-0 z-40 transition-transform duration-300 -translate-x-full lg:translate-x-0 h-[calc(100vh-5rem)] overflow-y-auto">
+      
+      <!-- Danh sách menu điều hướng -->
+      <div class="p-3.5 sm:p-4">
+        
+        <nav class="space-y-1">
+          
+          <!-- 1. Tổng quan (Dashboard) -->
+          <a href="/admin"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+            </svg>
+            <span>Tổng quan (Dashboard)</span>
+          </a>
+
+          <!-- 2. Quản lý khách hàng - ACTIVE (Đồng bộ kiểu Dashboard: Nền cam nhạt #fbeee6, Chữ nâu đỏ #8B2500) -->
+          <a href="/admin/khach-hang"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-[#fbeee6] text-[#8B2500] font-extrabold text-xs transition-all shadow-2xs">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Quản lý khách hàng</span>
+            </div>
+            <span class="bg-[#8B2500]/10 text-[#8B2500] font-bold text-[10px] px-1.5 py-0.5 rounded">1.4k</span>
+          </a>
+
+          <!-- 3. Quản lý sản phẩm -->
+          <a href="/admin/san-pham"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+              <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <span>Quản lý sản phẩm</span>
+          </a>
+
+          <!-- 4. Hồ sơ bảo hành -->
+          <a href="/admin/ho-so-bao-hanh"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Hồ sơ bảo hành</span>
+          </a>
+
+          <!-- 5. Yêu cầu & Xử lý phiếu (Chấm cam nhấp nháy) -->
+          <a href="/admin/yeu-cau-bao-hanh"
+            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="9" y1="9" x2="15" y2="9"></line>
+                <line x1="9" y1="13" x2="13" y2="13"></line>
+              </svg>
+              <span>Yêu cầu & Xử lý phiếu</span>
+            </div>
+            <span class="w-2 h-2 rounded-full bg-[#ff6b00] ring-4 ring-[#ff6b00]/20 animate-pulse"></span>
+          </a>
+
+          <!-- 6. Thống kê & Báo cáo -->
+          <a href="/admin/thong-ke"
+            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-medium text-xs transition-all">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            <span>Thống kê & Báo cáo</span>
+          </a>
+
+        </nav>
+
+      </div>
+
+      <!-- Đáy Sidebar: Chip MongoDB Online -->
+      <div class="p-3.5 sm:p-4 border-t border-slate-100">
+        <div class="bg-white border border-slate-200/90 rounded-full px-3.5 py-2 flex items-center justify-between shadow-xs text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-slate-700 font-semibold text-[11px]">MongoDB • OnLine</span>
+          </div>
+          <div class="text-slate-400">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Overlay cho mobile khi mở sidebar -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()"
+      class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden backdrop-blur-xs"></div>
+
+    <!-- ==============================================
+         3. MAIN CONTENT: QUẢN LÝ KHÁCH HÀNG
+    ============================================== -->
+    <main class="flex-1 p-4 sm:p-6 lg:p-7 space-y-5 min-w-0">
+
+      <!-- ==============================================
+           A. HEADER QUẢN LÝ KHÁCH HÀNG & CÁC NÚT HÀNH ĐỘNG
+      ============================================== -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        
+        <!-- Tiêu đề trang in hoa toàn bộ & đồng bộ màu header -->
+        <div>
+          <h1 class="text-2xl sm:text-[28px] font-black text-[#2a1212] tracking-tight uppercase">
+            QUẢN LÝ KHÁCH HÀNG
+          </h1>
+        </div>
+
+        <!-- Cụm 3 nút hành động bên phải: Nằm ngang hàng nhau -->
+        <div class="flex items-center gap-2 sm:gap-2.5 flex-nowrap overflow-x-auto pb-1 sm:pb-0">
+          
+          <!-- Nút 1: Bộ lọc nâng cao -->
+          <button type="button" onclick="openFilterModal()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            <span>Bộ lọc nâng cao</span>
+          </button>
+
+          <!-- Nút 2: Nhập Excel/CSV -->
+          <button type="button" onclick="triggerImportExcel()"
+            class="bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            <span>Nhập Excel/CSV</span>
+          </button>
+
+          <!-- Nút 3: + Thêm khách hàng mới (Cam #ff6b00) - Luôn nằm ngang hàng -->
+          <button type="button" onclick="openAddCustomerModal()"
+            class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 whitespace-nowrap flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+            <span>+ Thêm khách hàng mới</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- ==============================================
+           B. BỘ LỌC PHÂN LOẠI (COMBOBOX) & THANH TÌM KIẾM CÓ NÚT
+      ============================================== -->
+      <div class="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200/80 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
+        
+        <!-- 1. Bộ lọc combobox ở trước -->
+        <div class="w-full md:w-56 flex-shrink-0">
+          <select id="categorySelect" onchange="filterCustomerTable()"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all cursor-pointer">
+            <option value="all">Tất cả phân loại (9,250)</option>
+            <option value="vip">★ VIP • Doanh nghiệp</option>
+            <option value="canhan">Cá nhân</option>
+            <option value="daily">Đại lý ủy quyền</option>
+          </select>
+        </div>
+
+        <!-- 2. Thanh tìm kiếm ở giữa -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
+          <input type="text" id="searchInput" oninput="filterCustomerTable()" onkeydown="if(event.key==='Enter') filterCustomerTable()"
+            placeholder="Tìm theo tên khách hàng, mã KH, số CCCD/MST..."
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00] transition-all">
+        </div>
+
+        <!-- 3. Nút nhấn tìm kiếm -->
+        <button type="button" onclick="filterCustomerTable()"
+          class="bg-[#ff6b00] hover:bg-[#e05800] text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 flex-shrink-0">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Tìm kiếm</span>
+        </button>
+
+      </div>
+
+      <!-- ==============================================
+           C. BẢNG DỮ LIỆU KHÁCH HÀNG (DATA TABLE)
+      ============================================== -->
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse" id="customerTable">
+            
+            <!-- THEAD: TÁCH KHÁCH HÀNG VÀ PHÂN LOẠI, XOÁ CỘT LIÊN HỆ & ĐỊA CHỈ -->
+            <thead>
+              <tr class="border-b border-slate-200/80 bg-slate-50/60 text-[11px] font-black text-slate-500 uppercase tracking-wider select-none">
+                <th class="py-3.5 pl-4 sm:pl-6 pr-2 w-12 text-center">
+                  <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)"
+                    class="rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </th>
+                <th class="py-3.5 px-3 text-left w-16">KH</th>
+                <th class="py-3.5 px-4 text-left min-w-[200px]">KHÁCH HÀNG</th>
+                <th class="py-3.5 px-4 text-left min-w-[150px]">PHÂN LOẠI</th>
+                <th class="py-3.5 px-4 text-center min-w-[110px]">THIẾT BỊ SỞ HỮU</th>
+                <th class="py-3.5 px-4 text-center min-w-[110px]">SỐ LẦN BẢO HÀNH</th>
+                <th class="py-3.5 px-4 text-center min-w-[110px]">NGÀY THAM GIA</th>
+                <th class="py-3.5 pl-4 pr-6 text-center min-w-[130px]">THAO TÁC</th>
+              </tr>
+            </thead>
+
+            <!-- TBODY: DANH SÁCH KHÁCH HÀNG -->
+            <tbody class="divide-y divide-slate-100 text-xs text-slate-700">
+
+              <!-- DÒNG 1: TRẦN HOÀNG NAM (VIP / Doanh nghiệp) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="vip">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1094
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 border border-slate-200">
+                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces"
+                        alt="Trần Hoàng Nam" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <a href="/admin/ho-so-khach-hang" class="font-bold text-slate-900 text-sm tracking-tight customer-name hover:text-[#ff6b00] transition-colors">
+                        Trần Hoàng Nam
+                      </a>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        CCCD: 00109400****
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center gap-1 bg-[#fff8eb] text-[#b45309] border border-[#fde68a] text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    ★ VIP • Doanh nghiệp
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">3</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">2</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  12/03/2023
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <a href="/admin/ho-so-khach-hang"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem hồ sơ chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </a>
+                    <button type="button" onclick="editCustomer('Trần Hoàng Nam', '0912.345.678')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Trần Hoàng Nam', '0912.345.678')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 2: LÊ THỊ MAI HƯƠNG (Cá nhân) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="canhan">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1095
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 border border-slate-200">
+                      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces"
+                        alt="Lê Thị Mai Hương" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Lê Thị Mai Hương
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        CCCD: 03118900****
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    Cá nhân
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">1</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">0</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  05/08/2023
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Lê Thị Mai Hương', '0988.765.432', 'maihuong.le@gmail.com', 'TP. Hồ Chí Minh - 128 Nguyễn Đình Chiểu, Quận 3', 'Cá nhân', 1, 0, 'CCCD: 03118900****')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Lê Thị Mai Hương', '0988.765.432')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Lê Thị Mai Hương', '0988.765.432')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 3: PHẠM QUỐC TUẤN (Đại lý ủy quyền) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="daily">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1096
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 border border-slate-200">
+                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces"
+                        alt="Phạm Quốc Tuấn" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Phạm Quốc Tuấn
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        MST: 0108928372
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca] text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    Đại lý ủy quyền
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">6</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">4</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  29/11/2022
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Phạm Quốc Tuấn', '0983.112.899', 'tuan.pham@congngheso.vn', 'Đà Nẵng - 15 Trần Phú, Q. Hải Châu', 'Đại lý ủy quyền', 6, 4, 'MST: 0108928372')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Phạm Quốc Tuấn', '0983.112.899')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Phạm Quốc Tuấn', '0983.112.899')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 4: HOÀNG ANH DŨNG (Cá nhân) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="canhan">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1097
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 font-black text-xs flex items-center justify-center flex-shrink-0 border border-slate-200">
+                      HA
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Hoàng Anh Dũng
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        CCCD: 02509100****
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    Cá nhân
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">2</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">1</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  18/01/2024
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Hoàng Anh Dũng', '0977.234.901', 'dunghoang99@outlook.com', 'Hải Phòng - Lê Hồng Phong, Q. Ngô Quyền', 'Cá nhân', 2, 1, 'CCCD: 02509100****')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Hoàng Anh Dũng', '0977.234.901')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Hoàng Anh Dũng', '0977.234.901')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 5: VÕ THỊ THU THẢO (VIP / Doanh nghiệp) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="vip">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1098
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#ffedd5] text-[#c2410c] font-black text-xs flex items-center justify-center flex-shrink-0 border border-[#fed7aa]">
+                      VT
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Võ Thị Thu Thảo
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        CCCD: 07919500****
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center gap-1 bg-[#fff8eb] text-[#b45309] border border-[#fde68a] text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    ★ VIP • Doanh nghiệp
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">5</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">3</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  02/02/2024
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Võ Thị Thu Thảo', '0934.556.778', 'thuthao.vo@techviva.com', 'Bình Dương - Đại lộ Bình Dương, TP. Thủ Dầu Một', 'VIP • Doanh nghiệp', 5, 3, 'CCCD: 07919500****')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Võ Thị Thu Thảo', '0934.556.778')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Võ Thị Thu Thảo', '0934.556.778')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 6: NGUYỄN MINH TRÍ (Cá nhân) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="canhan">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1099
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-600 font-black text-xs flex items-center justify-center flex-shrink-0 border border-slate-200">
+                      MT
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Nguyễn Minh Trí
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        CCCD: 09209500****
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    Cá nhân
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">3</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">1</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  15/04/2024
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Nguyễn Minh Trí', '0905.889.123', 'tritest@gmail.com', 'Cần Thơ - 30/4 Ninh Kiều', 'Cá nhân', 3, 1, 'CCCD: 09209500****')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Nguyễn Minh Trí', '0905.889.123')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Nguyễn Minh Trí', '0905.889.123')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 7: TRỊNH BÍCH NGỌC (VIP / Doanh nghiệp) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="vip">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1100
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 border border-slate-200">
+                      <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=faces"
+                        alt="Trịnh Bích Ngọc" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Trịnh Bích Ngọc
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        CCCD: 04019200****
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center gap-1 bg-[#fff8eb] text-[#b45309] border border-[#fde68a] text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    ★ VIP • Doanh nghiệp
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">4</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">0</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  10/05/2024
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Trịnh Bích Ngọc', '0918.456.789', 'bichngoc@vietdecor.vn', 'Khánh Hòa - Yersin, TP. Nha Trang', 'VIP • Doanh nghiệp', 4, 0, 'CCCD: 04019200****')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Trịnh Bích Ngọc', '0918.456.789')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Trịnh Bích Ngọc', '0918.456.789')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- DÒNG 8: ĐẶNG QUỐC HUY (Đại lý ủy quyền) -->
+              <tr class="hover:bg-slate-50/80 transition-colors customer-row" data-category="daily">
+                <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+                  <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+                </td>
+                <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+                  1101
+                </td>
+                <!-- Cột 1: KHÁCH HÀNG -->
+                <td class="py-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#fef2f2] text-[#b91c1c] font-black text-xs flex items-center justify-center flex-shrink-0 border border-[#fecaca]">
+                      DH
+                    </div>
+                    <div>
+                      <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                        Đặng Quốc Huy
+                      </div>
+                      <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                        MST: 6001234567
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <!-- Cột 2: PHÂN LOẠI -->
+                <td class="py-4 px-4">
+                  <span class="inline-flex items-center bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca] text-[11px] font-bold px-2.5 py-1 rounded-md">
+                    Đại lý ủy quyền
+                  </span>
+                </td>
+                <!-- THIẾT BỊ -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">8</span> thiết bị
+                </td>
+                <!-- BẢO HÀNH -->
+                <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+                  <span class="font-bold text-slate-900 text-sm">5</span> lần
+                </td>
+                <!-- NGÀY THAM GIA -->
+                <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+                  11/12/2022
+                </td>
+                <!-- THAO TÁC -->
+                <td class="py-4 pl-4 pr-6 text-center">
+                  <div class="flex items-center justify-center gap-2">
+                    <button type="button" onclick="viewCustomerDetail('Đặng Quốc Huy', '0935.998.776', 'huy.dang@taynguyenit.com', 'Đắk Lắk - Nguyễn Tất Thành, Buôn Ma Thuột', 'Đại lý ủy quyền', 8, 5, 'MST: 6001234567')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="editCustomer('Đặng Quốc Huy', '0935.998.776')"
+                      class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      </svg>
+                    </button>
+                    <button type="button" onclick="openCreateTicketModal('Đặng Quốc Huy', '0935.998.776')"
+                      class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+                      <span>Tạo</span>
+                      <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- FOOTER PHÂN TRANG THEO THIẾT KẾ -->
+        <div class="px-4 sm:px-6 py-4 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          
+          <!-- Thông tin số dòng -->
+          <div class="flex items-center gap-2">
+            <span>Hiển thị <strong class="text-slate-800">1 - 8</strong> trong tổng số <strong class="text-slate-800">9,250</strong> kết quả</span>
+            <span class="text-slate-300">•</span>
+            <div class="flex items-center gap-1.5">
+              <span>Số dòng mỗi trang:</span>
+              <select class="bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold px-2 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#ff6b00]">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Các nút phân trang -->
+          <div class="flex items-center gap-1 font-bold">
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              «
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ‹
+            </button>
+            
+            <!-- Trang 1 ACTIVE (Cam #ff6b00) -->
+            <button type="button" class="w-8 h-8 rounded-lg bg-[#ff6b00] text-white flex items-center justify-center shadow-xs">
+              1
+            </button>
+            
+            <button type="button" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
+              2
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
+              3
+            </button>
+            <span class="px-1 text-slate-400">...</span>
+            <button type="button" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors">
+              925
+            </button>
+            
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              ›
+            </button>
+            <button type="button" class="w-8 h-8 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center transition-colors">
+              »
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ==============================================
+       MODAL 1: THÊM KHÁCH HÀNG MỚI
+  ============================================== -->
+  <div id="addCustomerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 transform transition-all">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div>
+          <h3 class="text-lg font-black text-slate-900 tracking-tight">Thêm Khách Hàng Mới</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Tạo hồ sơ khách hàng mới vào hệ thống MongoDB</p>
+        </div>
+        <button type="button" onclick="closeModal('addCustomerModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form id="addCustomerForm" onsubmit="handleSaveCustomer(event)" class="space-y-4">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Họ và tên khách hàng *</label>
+            <input type="text" id="custName" required placeholder="Ví dụ: Nguyễn Văn An"
+              class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Số điện thoại *</label>
+            <input type="tel" id="custPhone" required placeholder="0912.xxx.xxx"
+              class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Email liên hệ</label>
+            <input type="email" id="custEmail" placeholder="khachhang@email.com"
+              class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Phân loại khách hàng</label>
+            <select id="custType" class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+              <option value="canhan">Cá nhân (Thường)</option>
+              <option value="vip">VIP • Doanh nghiệp</option>
+              <option value="daily">Đại lý ủy quyền</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Số CCCD / Mã số thuế</label>
+            <input type="text" id="custIdNumber" placeholder="001094xxxxxx"
+              class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tỉnh / Thành phố</label>
+            <input type="text" id="custCity" placeholder="Hà Nội, TP.HCM, Đà Nẵng..."
+              class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Địa chỉ chi tiết</label>
+          <input type="text" id="custAddress" placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
+            class="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+        </div>
+
+        <div class="pt-3 flex items-center justify-end gap-2.5 border-t border-slate-100">
+          <button type="button" onclick="closeModal('addCustomerModal')"
+            class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors">
+            Hủy bỏ
+          </button>
+          <button type="submit"
+            class="px-5 py-2 rounded-xl text-xs font-bold bg-[#ff6b00] hover:bg-[#e05800] text-white shadow-xs transition-all active:scale-95">
+            Lưu khách hàng
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 2: XEM CHI TIẾT KHÁCH HÀNG
+  ============================================== -->
+  <div id="viewCustomerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 transform transition-all">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+        <h3 class="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <span>Hồ Sơ Khách Hàng Chi Tiết</span>
+        </h3>
+        <button type="button" onclick="closeModal('viewCustomerModal')" class="text-slate-400 hover:text-slate-700 p-1 rounded-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs" id="detailCustomerBody">
+        <!-- Render nội dung động qua JS -->
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex justify-end">
+        <button type="button" onclick="closeModal('viewCustomerModal')"
+          class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors">
+          Đóng cửa sổ
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 3: BỘ LỌC NÂNG CAO
+  ============================================== -->
+  <div id="filterModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h3 class="text-base font-black text-slate-900 tracking-tight">Bộ Lọc Khách Hàng Nâng Cao</h3>
+        <button type="button" onclick="closeModal('filterModal')" class="text-slate-400 hover:text-slate-700">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Khu vực / Tỉnh Thành</label>
+          <select id="filterCity" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+            <option value="">Tất cả tỉnh thành</option>
+            <option value="Hà Nội">Hà Nội</option>
+            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+            <option value="Đà Nẵng">Đà Nẵng</option>
+            <option value="Hải Phòng">Hải Phòng</option>
+            <option value="Bình Dương">Bình Dương</option>
+            <option value="Cần Thơ">Cần Thơ</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Số lượng thiết bị sở hữu</label>
+          <select id="filterDevices" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+            <option value="0">Tất cả</option>
+            <option value="1">Từ 1 thiết bị trở lên</option>
+            <option value="3">Từ 3 thiết bị trở lên</option>
+            <option value="5">Từ 5 thiết bị trở lên</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Lịch sử bảo hành</label>
+          <select id="filterWarranties" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+            <option value="all">Tất cả</option>
+            <option value="has_warranty">Đã từng bảo hành (≥ 1 lần)</option>
+            <option value="no_warranty">Chưa từng bảo hành (0 lần)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        <button type="button" onclick="resetAdvancedFilter()" class="px-3.5 py-2 text-slate-500 font-bold hover:text-slate-800">
+          Đặt lại
+        </button>
+        <button type="button" onclick="applyAdvancedFilter()" class="px-4 py-2 bg-[#ff6b00] hover:bg-[#e05800] text-white font-bold rounded-xl shadow-xs">
+          Áp dụng bộ lọc
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       MODAL 4: TẠO PHIẾU BẢO HÀNH NHANH CHO KH
+  ============================================== -->
+  <div id="createTicketModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-backdrop">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-100 mb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900 tracking-tight">Tạo Phiếu Bảo Hành Nhanh</h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="ticketCustomerSub">Tiếp nhận yêu cầu bảo hành cho khách hàng</p>
+        </div>
+        <button type="button" onclick="closeModal('createTicketModal')" class="text-slate-400 hover:text-slate-700 p-1">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <form onsubmit="handleQuickTicket(event)" class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Khách hàng được tiếp nhận</label>
+          <input type="text" id="ticketCustName" readonly class="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl font-bold text-slate-800 cursor-not-allowed">
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Chọn Thiết bị bảo hành *</label>
+          <select id="ticketDeviceSelect" required class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]">
+            <option value="Dell XPS 15 9530 (SN: DL-992810)">Dell XPS 15 9530 (SN: DL-992810) - Còn hạn ProSupport</option>
+            <option value="MacBook Air M2 13 (SN: C02GM09PK)">MacBook Air M2 13" (SN: C02GM09PK) - Hạn đến 2026</option>
+            <option value="iPhone 15 Pro Max (IMEI: 3589211029)">iPhone 15 Pro Max (IMEI: 3589211029)</option>
+            <option value="Sony WH-1000XM5 (SN: SN-88912)">Tai nghe Sony WH-1000XM5</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Mô tả triệu chứng / Hiện tượng lỗi *</label>
+          <textarea rows="3" required placeholder="Ví dụ: Màn hình sọc ngang, chớp tắt khi cắm sạc nguồn..."
+            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ff6b00]/30 focus:border-[#ff6b00]"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Mức độ ưu tiên SLA</label>
+            <select class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+              <option value="SLA-24H">Khẩn cấp - SLA 24 Giờ</option>
+              <option value="SLA-48H" selected>Tiêu chuẩn - SLA 48 Giờ</option>
+              <option value="SLA-72H">Bình thường - SLA 72 Giờ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Kỹ thuật viên phụ trách</label>
+            <select class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl">
+              <option value="KTV-08">Lê Minh Trí (KTV-08)</option>
+              <option value="KTV-02">Trần Bảo Nam (KTV-02)</option>
+              <option value="KTV-05">Nguyễn Quốc Huy (KTV-05)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('createTicketModal')" class="px-4 py-2 font-bold text-slate-500 hover:text-slate-800">
+            Hủy
+          </button>
+          <button type="submit" class="px-5 py-2 bg-[#ff6b00] hover:bg-[#e05800] text-white font-bold rounded-xl shadow-xs active:scale-95 transition-all">
+            Tạo phiếu tiếp nhận
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       JAVASCRIPT: QUẢN LÝ TƯƠNG TÁC BẢNG & MODAL
+  ============================================== -->
+  <script>
+    // 1. Toggle Sidebar Drawer trên mobile
+    function toggleSidebar() {
+      const sidebar = document.getElementById('adminSidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      if (sidebar && overlay) {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+      }
+    }
+
+    // 2. Mở / Đóng Modal dùng chung
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function openAddCustomerModal() {
+      openModal('addCustomerModal');
+    }
+
+    function openFilterModal() {
+      openModal('filterModal');
+    }
+
+    // 3. Tìm kiếm và Lọc theo phân loại (Combobox & Input)
+    function filterCustomerTable() {
+      const search = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+      const category = document.getElementById('categorySelect')?.value || 'all';
+      const rows = document.querySelectorAll('#customerTable tbody tr.customer-row');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const rowCategory = row.getAttribute('data-category');
+        const matchSearch = !search || text.includes(search);
+        const matchCategory = category === 'all' || rowCategory === category;
+
+        if (matchSearch && matchCategory) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // 5. Chọn tất cả checkbox
+    function toggleSelectAll(master) {
+      const checkboxes = document.querySelectorAll('.row-checkbox');
+      checkboxes.forEach(cb => cb.checked = master.checked);
+    }
+
+    // 6. Xem chi tiết khách hàng
+    function viewCustomerDetail(name, phone, email, address, type, devices, warranties, cccd) {
+      const body = document.getElementById('detailCustomerBody');
+      body.innerHTML = `
+        <div class="flex items-center gap-3.5 p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+          <div class="w-12 h-12 rounded-full bg-[#ff6b00]/15 text-[#ff6b00] font-black text-sm flex items-center justify-center border border-[#ff6b00]/30">
+            ${name.split(' ').map(n=>n[0]).slice(-2).join('')}
+          </div>
+          <div>
+            <h4 class="font-extrabold text-slate-900 text-sm">${name}</h4>
+            <div class="text-slate-500 text-[11px] mt-0.5">${phone} • ${email}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Phân loại</span>
+            <span class="font-bold text-slate-800 text-xs mt-0.5 block">${type}</span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+            <span class="text-slate-400 block text-[10px] uppercase font-bold">Giấy tờ tùy thân / MST</span>
+            <span class="font-mono font-bold text-slate-800 text-xs mt-0.5 block">${cccd}</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+          <span class="text-slate-400 block text-[10px] uppercase font-bold">Địa chỉ lưu trú</span>
+          <span class="font-semibold text-slate-800 text-xs mt-0.5 block">${address}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="p-3 bg-orange-50/70 border border-orange-100 rounded-xl text-center">
+            <span class="text-[#c2410c] text-xl font-black block">${devices}</span>
+            <span class="text-[#ea580c] text-[10.5px] font-bold">Thiết bị đang sở hữu</span>
+          </div>
+          <div class="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-center">
+            <span class="text-[#1d4ed8] text-xl font-black block">${warranties}</span>
+            <span class="text-[#2563eb] text-[10.5px] font-bold">Lần gửi bảo hành</span>
+          </div>
+        </div>
+
+        <div class="pt-2">
+          <span class="font-bold text-slate-800 block mb-1.5 text-[11px]">Danh sách thiết bị liên kết:</span>
+          <div class="space-y-1.5 text-[11px]">
+            <div class="p-2 rounded-lg bg-white border border-slate-200 flex items-center justify-between">
+              <span class="font-semibold text-slate-800">Dell XPS 15 9530 (Core i7 / OLED)</span>
+              <span class="text-emerald-600 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded">Còn hạn BH</span>
+            </div>
+            <div class="p-2 rounded-lg bg-white border border-slate-200 flex items-center justify-between">
+              <span class="font-semibold text-slate-800">iPhone 15 Pro Max 256GB</span>
+              <span class="text-emerald-600 font-bold text-[10px] bg-emerald-50 px-2 py-0.5 rounded">Còn hạn BH</span>
+            </div>
+          </div>
+        </div>
+      `;
+      openModal('viewCustomerModal');
+    }
+
+    // 7. Chỉnh sửa khách hàng
+    function editCustomer(name, phone) {
+      alert(`Đang mở giao diện chỉnh sửa thông tin cho khách hàng: ${name} (${phone})`);
+    }
+
+    // 8. Tạo phiếu BH nhanh
+    function openCreateTicketModal(name, phone) {
+      document.getElementById('ticketCustName').value = `${name} - ${phone}`;
+      document.getElementById('ticketCustomerSub').innerText = `Tạo phiếu tiếp nhận bảo hành cho: ${name}`;
+      openModal('createTicketModal');
+    }
+
+    function handleQuickTicket(e) {
+      e.preventDefault();
+      alert('Tạo phiếu yêu cầu bảo hành thành công! Phiếu đã được chuyển sang trạng thái "Đang xử lý & Chờ duyệt linh kiện".');
+      closeModal('createTicketModal');
+    }
+
+    // 9. Lưu khách hàng mới
+    function handleSaveCustomer(e) {
+      e.preventDefault();
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const email = document.getElementById('custEmail').value.trim() || 'chuaco@email.com';
+      const type = document.getElementById('custType').value;
+      const city = document.getElementById('custCity').value.trim() || 'Hà Nội';
+      const address = document.getElementById('custAddress').value.trim() || 'Chưa cập nhật';
+      const cccd = document.getElementById('custIdNumber').value.trim() || '001094******';
+
+      const tbody = document.querySelector('#customerTable tbody');
+      const newTr = document.createElement('tr');
+      newTr.className = 'hover:bg-slate-50/80 transition-colors customer-row bg-emerald-50/20';
+      newTr.setAttribute('data-category', type);
+
+      let typeBadge = '';
+      if (type === 'vip') {
+        typeBadge = '<span class="inline-flex items-center gap-1 bg-[#fff8eb] text-[#b45309] border border-[#fde68a] text-[10px] font-bold px-2 py-0.5 rounded-md">★ VIP • Doanh nghiệp</span>';
+      } else if (type === 'daily') {
+        typeBadge = '<span class="inline-flex items-center bg-[#fef2f2] text-[#b91c1c] border border-[#fecaca] text-[10px] font-bold px-2 py-0.5 rounded-md">Đại lý ủy quyền</span>';
+      } else {
+        typeBadge = '<span class="inline-flex items-center bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-md">Cá nhân</span>';
+      }
+
+      const initials = name.split(' ').map(n=>n[0]).slice(-2).join('').toUpperCase();
+      const randomId = Math.floor(1000 + Math.random() * 9000);
+
+      newTr.innerHTML = `
+        <td class="py-4 pl-4 sm:pl-6 pr-2 text-center">
+          <input type="checkbox" class="row-checkbox rounded border-slate-300 text-[#ff6b00] focus:ring-[#ff6b00]/30 cursor-pointer">
+        </td>
+        <td class="py-4 px-3 font-mono font-bold text-slate-400 text-[11px]">
+          ${randomId}
+        </td>
+        <!-- Cột 1: KHÁCH HÀNG -->
+        <td class="py-4 px-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-black text-xs flex items-center justify-center flex-shrink-0 border border-emerald-200">
+              ${initials}
+            </div>
+            <div>
+              <div class="font-bold text-slate-900 text-sm tracking-tight customer-name">
+                ${name}
+              </div>
+              <div class="text-[10.5px] text-slate-400 font-mono mt-0.5">
+                ${cccd}
+              </div>
+            </div>
+          </div>
+        </td>
+        <!-- Cột 2: PHÂN LOẠI -->
+        <td class="py-4 px-4">
+          ${typeBadge}
+        </td>
+        <!-- THIẾT BỊ SỞ HỮU -->
+        <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+          <span class="font-bold text-slate-900 text-sm">1</span> thiết bị
+        </td>
+        <!-- SỐ LẦN BẢO HÀNH -->
+        <td class="py-4 px-4 text-center text-slate-700 font-medium text-xs">
+          <span class="font-bold text-slate-900 text-sm">0</span> lần
+        </td>
+        <!-- NGÀY THAM GIA -->
+        <td class="py-4 px-4 text-center text-slate-500 font-medium text-[11px]">
+          Hôm nay
+        </td>
+        <!-- THAO TÁC -->
+        <td class="py-4 pl-4 pr-6 text-center">
+          <div class="flex items-center justify-center gap-2">
+            <button type="button" onclick="viewCustomerDetail('${name}', '${phone}', '${email}', '${city} - ${address}', '${type}', 1, 0, '${cccd}')"
+              class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Xem chi tiết">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+            <button type="button" onclick="editCustomer('${name}', '${phone}')"
+              class="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors cursor-pointer" title="Chỉnh sửa">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </button>
+            <button type="button" onclick="openCreateTicketModal('${name}', '${phone}')"
+              class="bg-[#fff3eb] hover:bg-[#ffe5d3] text-[#c2410c] border border-[#fed7aa] px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex flex-col items-center leading-tight transition-all active:scale-95 cursor-pointer shadow-2xs">
+              <span>Tạo</span>
+              <span class="flex items-center gap-0.5 font-black text-[10px]">⊕ phiếu BH</span>
+            </button>
+          </div>
+        </td>
+      `;
+
+      tbody.insertBefore(newTr, tbody.firstChild);
+      closeModal('addCustomerModal');
+      document.getElementById('addCustomerForm').reset();
+      alert(`Đã thêm thành công khách hàng: ${name} vào cơ sở dữ liệu!`);
+    }
+
+    // 10. Xuất / Nhập Excel
+    function triggerImportExcel() {
+      alert('Đang mở hộp thoại chọn tệp Excel (.xlsx, .csv) chứa danh sách khách hàng để nhập dữ liệu...');
+    }
+
+    // 11. Áp dụng bộ lọc nâng cao
+    function applyAdvancedFilter() {
+      const city = document.getElementById('filterCity').value.toLowerCase().trim();
+      const minDevices = parseInt(document.getElementById('filterDevices').value) || 0;
+      const rows = document.querySelectorAll('#customerTable tbody tr.customer-row');
+
+      rows.forEach(row => {
+        const onclickAttr = row.querySelector('button[onclick*="viewCustomerDetail"]')?.getAttribute('onclick') || '';
+        const matchCity = !city || onclickAttr.toLowerCase().includes(city);
+        if (matchCity) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      closeModal('filterModal');
+    }
+
+    function resetAdvancedFilter() {
+      document.getElementById('filterCity').value = '';
+      document.getElementById('filterDevices').value = '0';
+      document.getElementById('filterWarranties').value = 'all';
+      filterCustomerTable();
+      closeModal('filterModal');
+    }
+  </script>
+
+</body>
+
+</html>
+
