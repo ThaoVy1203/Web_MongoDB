@@ -2,46 +2,53 @@ const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
+const { attachCurrentUser } = require('./middleware/auth');
 
-// Nạp các biến môi trường từ tệp .env
+// Nạp biến môi trường từ .env
 dotenv.config();
 
-// Khởi tạo ứng dụng Express
 const app = express();
 
 // Kết nối cơ sở dữ liệu MongoDB
 connectDB();
 
-// Cấu hình Middleware phân tích cú pháp dữ liệu gửi lên từ form & JSON
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middleware phân tích JSON & Form
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
-// Bỏ qua yêu cầu favicon.ico để tránh kích hoạt lỗi 404
+// Bỏ qua favicon.ico
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-// Cấu hình thư mục chứa tài nguyên tĩnh (CSS, JS, Hình ảnh)
+// Tài nguyên tĩnh
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Gắn thông tin phiên đăng nhập vào req.user & res.locals.currentUser
+app.use(attachCurrentUser);
 
 // Cấu hình Template Engine EJS
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Sử dụng Routes chính
+// Đăng ký các phân hệ Routes
+const authRouter = require('./routes/auth');
+const adminRouter = require('./routes/admin');
 const indexRouter = require('./routes/index');
+
+app.use('/', authRouter);
+app.use('/', adminRouter);
 app.use('/', indexRouter);
 
-// Xử lý Route 404 - Không tìm thấy trang (Chuyển hướng về trang chủ)
+// Xử lý Route 404
 app.use((req, res) => {
   res.redirect('/');
 });
 
-// Xử lý lỗi toàn cục hệ thống (500)
+// Xử lý lỗi toàn cục (500)
 app.use((err, req, res, next) => {
   console.error('❌ Lỗi hệ thống:', err.stack);
   res.status(500).send('Đã có lỗi xảy ra trên máy chủ! Vui lòng thử lại sau.');
 });
 
-// Khởi chạy Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`====================================================`);
