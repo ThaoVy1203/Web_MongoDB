@@ -1,0 +1,33 @@
+{
+  "name": "warrantyops-backend",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Clean RESTful Web API for WarrantyOps Document & Asset Management",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "NODE_ENV=dev nodemon ./src/server.js",
+    "start": "NODE_ENV=prod node ./src/server.js",
+    "seed": "node ./src/scripts/seed.js"
+  },
+  "keywords": [
+    "warranty",
+    "documents",
+    "express",
+    "mongodb",
+    "rest-api"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "http-status-codes": "^2.3.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
