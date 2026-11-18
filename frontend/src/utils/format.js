@@ -33,11 +33,12 @@ export const formatPriceNumber = (num) => {
   return `${n.toLocaleString("vi-VN")} ₫`;
 };
 
+/* Quiet, Apple-style status indicators: neutral typography + crisp 6px dot */
 export const getRecordStatusMeta = (status, daysRemaining) => {
   if (status === "rejected") {
     return {
       label: "Đã thu hồi",
-      badgeClass: "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200/70",
+      badgeClass: "text-[#6E6E73] bg-[#F5F5F7]",
       dotClass: "bg-rose-500",
       barClass: "bg-rose-500",
     };
@@ -45,24 +46,24 @@ export const getRecordStatusMeta = (status, daysRemaining) => {
   if (status === "expired" || (typeof daysRemaining === "number" && daysRemaining < 0)) {
     return {
       label: typeof daysRemaining === "number" ? `Hết hạn ${Math.abs(daysRemaining)} ngày` : "Đã hết hạn",
-      badgeClass: "bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200",
-      dotClass: "bg-slate-400",
-      barClass: "bg-slate-400",
+      badgeClass: "text-[#6E6E73] bg-[#F5F5F7]",
+      dotClass: "bg-neutral-400",
+      barClass: "bg-neutral-400",
     };
   }
   if (status === "expiring" || (typeof daysRemaining === "number" && daysRemaining <= 30)) {
     return {
-      label: typeof daysRemaining === "number" ? `Sắp đáo hạn · ${daysRemaining} ngày` : "Sắp hết hạn",
-      badgeClass: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200/80",
+      label: typeof daysRemaining === "number" ? `Còn ${daysRemaining} ngày` : "Sắp hết hạn",
+      badgeClass: "text-[#1D1D1F] bg-[#F5F5F7]",
       dotClass: "bg-amber-500",
       barClass: "bg-amber-500",
     };
   }
   return {
-    label: typeof daysRemaining === "number" ? `Còn hiệu lực · ${daysRemaining} ngày` : "Còn hiệu lực",
-    badgeClass: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200/80",
+    label: typeof daysRemaining === "number" ? `Còn ${daysRemaining} ngày` : "Còn hiệu lực",
+    badgeClass: "text-[#1D1D1F] bg-[#F5F5F7]",
     dotClass: "bg-emerald-500",
-    barClass: "bg-indigo-600",
+    barClass: "bg-[#1D1D1F]",
   };
 };
 
@@ -70,40 +71,40 @@ export const getTicketStatusMeta = (status) => {
   switch (status) {
     case "Tiếp nhận":
       return {
-        badgeClass: "bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200",
-        dotClass: "bg-slate-500",
+        badgeClass: "text-[#6E6E73] bg-[#F5F5F7]",
+        dotClass: "bg-neutral-400",
       };
     case "Đang kiểm tra":
       return {
-        badgeClass: "bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/80",
+        badgeClass: "text-[#1D1D1F] bg-[#F5F5F7]",
         dotClass: "bg-sky-500",
       };
     case "Chờ linh kiện":
     case "Chờ duyệt":
       return {
-        badgeClass: "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200/80",
+        badgeClass: "text-[#1D1D1F] bg-[#F5F5F7]",
         dotClass: "bg-amber-500",
       };
     case "Đang sửa chữa":
       return {
-        badgeClass: "bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-200/80",
-        dotClass: "bg-indigo-600",
+        badgeClass: "text-[#1D1D1F] bg-[#F5F5F7]",
+        dotClass: "bg-[#0071E3]",
       };
     case "Đã sửa xong":
     case "Đã trả khách":
       return {
-        badgeClass: "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200/80",
+        badgeClass: "text-[#1D1D1F] bg-[#F5F5F7]",
         dotClass: "bg-emerald-500",
       };
     case "Từ chối bảo hành":
       return {
-        badgeClass: "bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200/80",
+        badgeClass: "text-[#6E6E73] bg-[#F5F5F7]",
         dotClass: "bg-rose-500",
       };
     default:
       return {
-        badgeClass: "bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-200",
-        dotClass: "bg-slate-400",
+        badgeClass: "text-[#6E6E73] bg-[#F5F5F7]",
+        dotClass: "bg-neutral-400",
       };
   }
 };

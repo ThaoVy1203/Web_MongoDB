@@ -4,10 +4,15 @@ import { recordService } from "../services/recordService.js";
 const list = async (req, res, next) => {
   try {
     const { status = "all", q = "", mine } = req.query;
-    const scope =
-      mine === "true" && req.user && req.user.role === "customer"
-        ? { customerCode: req.user.customerCode, email: req.user.email }
-        : {};
+    const isCustomerMine = mine === "true" && req.user && req.user.role === "customer";
+    const scope = isCustomerMine
+      ? {
+          customerCode: req.user.customerCode,
+          email: req.user.email,
+          phone: req.user.phone || "",
+          strictMine: true,
+        }
+      : {};
     const result = await recordService.listRecords({ status, q, ...scope });
     res.status(StatusCodes.OK).json({
       success: true,
@@ -35,7 +40,7 @@ const lookup = async (req, res, next) => {
 
 const batchCheck = async (req, res, next) => {
   try {
-    const results = await recordService.batchCheckSerials(req.body.serials || "");
+    const results = await recordService.batchCheckSerials(req.body?.serials || "");
     res.status(StatusCodes.OK).json({
       success: true,
       data: results,

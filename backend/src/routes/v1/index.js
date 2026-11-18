@@ -21,6 +21,9 @@ Router.get("/status", (_req, res) => {
 });
 
 Router.post("/ai/suggest-branch", analyticsController.suggestBranch);
+Router.get("/ai/expiring-advisor", analyticsController.expiringAdvisor);
+Router.post("/ai/expiring-advisor", analyticsController.expiringAdvisor);
+Router.post("/ai/device-insights", analyticsController.deviceInsights);
 
 Router.post("/seed", async (_req, res, next) => {
   try {

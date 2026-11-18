@@ -95,7 +95,7 @@ const reject = async (req, res, next) => {
 
 const confirmReceipt = async (req, res, next) => {
   try {
-    const updated = await ticketService.confirmReceipt(req.params.id);
+    const updated = await ticketService.confirmReceipt(req.params.id, req.body || {});
     res.status(StatusCodes.OK).json({
       success: true,
       message: `Nghiệm thu bàn giao hoàn tất cho phiếu #${updated.warrantyCode}!`,

@@ -31,3 +31,6 @@ npm-debug.log*
 Thumbs.db
 .idea/
 .vscode/
+
+# AI Agent skills & local config
+.agents/

@@ -1,6 +1,16 @@
 import { StatusCodes } from "http-status-codes";
 import { env } from "../config/env.js";
 
+const DUPLICATE_FIELD_LABELS = {
+  serialNumber: "Số Serial",
+  wbCode: "Mã chứng nhận bảo hành",
+  warrantyCode: "Mã phiếu bảo hành",
+  email: "Email",
+  phone: "Số điện thoại",
+  customerCode: "Mã khách hàng",
+  sku: "Mã SKU sản phẩm",
+};
+
 export const notFoundHandler = (req, _res, next) => {
   const error = new Error(`Route ${req.originalUrl} not found`);
   error.statusCode = StatusCodes.NOT_FOUND;
@@ -12,13 +22,20 @@ export const errorHandlingMiddleware = (err, _req, res, _next) => {
     err = new Error(err);
   }
 
-  let statusCode = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
-  let message = err.message || "Internal Server Error";
+  let statusCode = err.statusCode || err.status || StatusCodes.INTERNAL_SERVER_ERROR;
+  let message = err.message || "Lỗi hệ thống máy chủ.";
 
-  if (err.code === 11000) {
+  const duplicateCode = err.code === 11000 || err.cause?.code === 11000;
+
+  if (err.type === "entity.parse.failed" || (err instanceof SyntaxError && err.status === 400)) {
+    statusCode = StatusCodes.BAD_REQUEST;
+    message = "Dữ liệu JSON gửi lên không đúng định dạng.";
+  } else if (duplicateCode) {
     statusCode = StatusCodes.CONFLICT;
-    const field = Object.keys(err.keyPattern || {})[0] || "Dữ liệu";
-    message = `${field} đã tồn tại trên hệ thống.`;
+    const rawKey =
+      Object.keys(err.keyPattern || err.keyValue || err.cause?.keyPattern || {})[0] || "";
+    const label = DUPLICATE_FIELD_LABELS[rawKey] || "Dữ liệu";
+    message = `${label} đã tồn tại trên hệ thống.`;
   } else if (err.name === "ValidationError") {
     statusCode = StatusCodes.BAD_REQUEST;
     message = Object.values(err.errors || {})
@@ -26,7 +43,10 @@ export const errorHandlingMiddleware = (err, _req, res, _next) => {
       .join(", ");
   } else if (err.name === "CastError") {
     statusCode = StatusCodes.BAD_REQUEST;
-    message = `Định dạng ${err.path} không hợp lệ: ${err.value}`;
+    message = `Định dạng định danh (${err.path || "id"}) không hợp lệ.`;
+  } else if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
+    statusCode = StatusCodes.UNAUTHORIZED;
+    message = "Phiên đăng nhập không hợp lệ hoặc đã hết hạn.";
   }
 
   const responseError = {
@@ -35,7 +55,7 @@ export const errorHandlingMiddleware = (err, _req, res, _next) => {
     message,
   };
 
-  if (env.NODE_ENV === "dev") {
+  if (["dev", "development"].includes(env.NODE_ENV)) {
     responseError.stack = err.stack;
   }
 

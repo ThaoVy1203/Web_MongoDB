@@ -17,9 +17,52 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+let refreshPromise = null;
+
 apiClient.interceptors.response.use(
   (res) => res,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
+    const isAuthEndpoint =
+      originalRequest?.url?.includes("/auth/login") ||
+      originalRequest?.url?.includes("/auth/register") ||
+      originalRequest?.url?.includes("/auth/refresh-token");
+
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
+      const savedRefresh = localStorage.getItem("wops_refresh_token");
+      if (savedRefresh) {
+        originalRequest._retry = true;
+        try {
+          if (!refreshPromise) {
+            refreshPromise = axios
+              .post(`${API_BASE}/auth/refresh-token`, { refresh_token: savedRefresh })
+              .then((r) => r.data)
+              .finally(() => {
+                refreshPromise = null;
+              });
+          }
+          const refreshed = await refreshPromise;
+          if (refreshed?.access_token) {
+            localStorage.setItem("wops_access_token", refreshed.access_token);
+            if (refreshed.refresh_token) {
+              localStorage.setItem("wops_refresh_token", refreshed.refresh_token);
+            }
+            originalRequest.headers.Authorization = `Bearer ${refreshed.access_token}`;
+            return apiClient(originalRequest);
+          }
+        } catch {
+          localStorage.removeItem("wops_access_token");
+          localStorage.removeItem("wops_refresh_token");
+          localStorage.removeItem("wops_user");
+        }
+      }
+    }
+
     const message =
       error.response?.data?.message ||
       error.message ||
@@ -31,6 +74,8 @@ apiClient.interceptors.response.use(
 export const authApi = {
   login: (data) => apiClient.post("/auth/login", data).then((r) => r.data),
   register: (data) => apiClient.post("/auth/register", data).then((r) => r.data),
+  refreshToken: (refresh_token) =>
+    apiClient.post("/auth/refresh-token", { refresh_token }).then((r) => r.data),
   me: () => apiClient.get("/auth/me").then((r) => r.data),
   logout: () => apiClient.post("/auth/logout").then((r) => r.data),
 };
@@ -54,7 +99,8 @@ export const ticketsApi = {
   assign: (id, data) => apiClient.patch(`/tickets/${id}/assign`, data).then((r) => r.data),
   addPart: (id, data) => apiClient.post(`/tickets/${id}/parts`, data).then((r) => r.data),
   reject: (id, data) => apiClient.post(`/tickets/${id}/reject`, data).then((r) => r.data),
-  confirmReceipt: (id) => apiClient.post(`/tickets/${id}/confirm-receipt`).then((r) => r.data),
+  confirmReceipt: (id, data = {}) =>
+    apiClient.post(`/tickets/${id}/confirm-receipt`, data).then((r) => r.data),
   addMessage: (id, data) => apiClient.post(`/tickets/${id}/messages`, data).then((r) => r.data),
   remove: (id) => apiClient.delete(`/tickets/${id}`).then((r) => r.data),
 };
@@ -79,5 +125,7 @@ export const analyticsApi = {
   overview: (range = "all") => apiClient.get("/analytics/overview", { params: { range } }).then((r) => r.data),
   reports: (params) => apiClient.get("/analytics/reports", { params }).then((r) => r.data),
   suggestBranch: (data) => apiClient.post("/ai/suggest-branch", data).then((r) => r.data),
+  expiringAdvisor: (data = {}) => apiClient.post("/ai/expiring-advisor", data).then((r) => r.data),
+  deviceInsights: (data) => apiClient.post("/ai/device-insights", data).then((r) => r.data),
   exportUrl: (type) => `${API_BASE}/analytics/export/${type}`,
 };

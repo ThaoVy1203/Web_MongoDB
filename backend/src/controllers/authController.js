@@ -33,7 +33,7 @@ const register = async (req, res, next) => {
 
 const refreshToken = async (req, res, next) => {
   try {
-    const result = await authService.refreshToken(req.body.refresh_token);
+    const result = await authService.refreshToken(req.body?.refresh_token);
     res.status(StatusCodes.OK).json({
       success: true,
       message: "Làm mới phiên đăng nhập thành công!",

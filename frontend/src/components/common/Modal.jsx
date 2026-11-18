@@ -21,29 +21,29 @@ export const Modal = ({ open, onClose, title, subtitle, maxWidth = "max-w-xl", c
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-slate-900/35 backdrop-blur-[2px]"
+            className="fixed inset-0 bg-black/45 backdrop-blur-[3px]"
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            initial={{ opacity: 0, scale: 0.97, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: 10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-3xl bg-white border border-slate-200/80 shadow-2xl shadow-slate-900/10`}
+            exit={{ opacity: 0, scale: 0.98, y: 8 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className={`relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-[28px] bg-white border border-neutral-200 shadow-2xl shadow-black/15`}
           >
-            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 px-6 py-5 bg-white/95 backdrop-blur border-b border-slate-100">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 px-7 py-5 bg-white/95 backdrop-blur border-b border-neutral-100">
               <div>
-                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
-                {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+                <h3 className="text-lg font-bold tracking-tight text-[#0A0A0A]">{title}</h3>
+                {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                className="w-8 h-8 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-[#0A0A0A] hover:border-[#0A0A0A] transition-colors cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="p-6">{children}</div>
+            <div className="p-7">{children}</div>
           </motion.div>
         </div>
       )}

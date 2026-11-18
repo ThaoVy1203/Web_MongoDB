@@ -6,7 +6,7 @@ import { optionalAuth } from "../../middlewares/authMiddleware.js";
 const Router = express.Router();
 
 Router.get("/lookup", recordController.lookup);
-Router.post("/batch-check", recordController.batchCheck);
+Router.post("/batch-check", recordValidation.batchCheck, recordController.batchCheck);
 Router.get("/", optionalAuth, recordController.list);
 Router.get("/:id", recordController.detail);
 Router.post("/", optionalAuth, recordValidation.create, recordController.create);

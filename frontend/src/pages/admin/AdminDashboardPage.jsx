@@ -56,7 +56,7 @@ export const AdminDashboardPage = () => {
               type="button"
               onClick={() => setRange(r.id)}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                range === r.id ? "bg-indigo-600 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                range === r.id ? "bg-[#0A0A0A] text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {r.label}
@@ -73,7 +73,7 @@ export const AdminDashboardPage = () => {
             value: kpis.activeRecords ?? "—",
             sub: `/ ${kpis.totalRecords ?? 0} tổng chứng từ`,
             icon: FileBadge,
-            tone: "bg-indigo-50 text-indigo-600",
+            tone: "bg-[#F4F5F7] text-[#0A0A0A]",
           },
           {
             label: "Phiếu RMA đang mở",
@@ -131,7 +131,7 @@ export const AdminDashboardPage = () => {
             </div>
             <Link
               to="/admin/tickets"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[#0A0A0A] hover:text-[#0A0A0A]"
             >
               <span>Điều phối tất cả</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -154,7 +154,7 @@ export const AdminDashboardPage = () => {
                   const st = getTicketStatusMeta(t.status);
                   return (
                     <tr key={t._id} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="px-6 py-4 font-mono font-bold text-indigo-600">
+                      <td className="px-6 py-4 font-mono font-bold text-[#0A0A0A]">
                         <Link to={`/admin/tickets?ticket=${encodeURIComponent(t.warrantyCode)}`}>
                           {t.warrantyCode}
                         </Link>
@@ -214,7 +214,7 @@ export const AdminDashboardPage = () => {
           {/* Service Stations Capacity */}
           <div className="rounded-3xl bg-white border border-slate-200/80 p-6 space-y-4">
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-indigo-600" />
+              <Building2 className="w-4 h-4 text-[#0A0A0A]" />
               <h3 className="text-base font-bold text-slate-900">Công suất Trạm Ủy quyền</h3>
             </div>
             <div className="space-y-3">
@@ -244,7 +244,7 @@ export const AdminDashboardPage = () => {
                 <Clock className="w-4 h-4 text-amber-600" />
                 <h3 className="text-sm font-bold text-slate-900">Chứng nhận Sắp hết hạn</h3>
               </div>
-              <Link to="/admin/records" className="text-xs font-semibold text-indigo-600">
+              <Link to="/admin/records" className="text-xs font-semibold text-[#0A0A0A]">
                 Quản lý →
               </Link>
             </div>

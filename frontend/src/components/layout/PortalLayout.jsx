@@ -1,34 +1,26 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import {
-  ShieldCheck,
-  Search,
-  FolderKanban,
-  Send,
-  Activity,
-  LayoutDashboard,
-  LogOut,
-  UserCheck,
-  Sparkles,
-  Menu,
-  X,
-} from "lucide-react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { LogOut, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 
 const navItems = [
-  { to: "/", label: "Không gian Hồ sơ", icon: FolderKanban, end: true },
-  { to: "/lookup", label: "Tra cứu & Chứng nhận", icon: Search },
-  { to: "/my-devices", label: "Sổ Thiết bị", icon: ShieldCheck },
-  { to: "/submit-request", label: "Gửi yêu cầu", icon: Send },
-  { to: "/track", label: "Theo dõi tiến độ", icon: Activity },
+  { to: "/", label: "Giới thiệu", end: true },
+  { to: "/home", label: "Không gian Home" },
+  { to: "/lookup", label: "Tra cứu" },
+  { to: "/my-devices", label: "Thiết bị" },
+  { to: "/submit-request", label: "Gửi yêu cầu" },
+  { to: "/track", label: "Theo dõi" },
 ];
 
 export const PortalLayout = () => {
   const { user, isAdmin, logout } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const isLanding = location.pathname === "/";
 
   const handleLogout = async () => {
     await logout();
@@ -37,99 +29,100 @@ export const PortalLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50/70 text-slate-900">
-      {/* Clean Frosted Header */}
-      <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/75 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Brand */}
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:bg-indigo-700 transition-colors">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div className="leading-tight">
-              <span className="font-extrabold text-base tracking-tight text-slate-900">
-                Warranty<span className="text-indigo-600">Ops</span>
-              </span>
-              <span className="hidden sm:block text-[11px] text-slate-400 font-medium">
-                Digital Document Vault
-              </span>
-            </div>
+    <div className="min-h-screen flex flex-col bg-white text-[#1D1D1F]">
+      {/* Apple-Minimalist Frosted Top Bar — seamless with full-bleed hero on / */}
+      <header
+        className={`sticky top-0 z-40 backdrop-blur-xl no-print transition-colors ${
+          isLanding
+            ? "bg-[#F6F7F9]/85 border-b border-transparent"
+            : "bg-white/80 border-b border-black/[0.06]"
+        }`}
+      >
+        <div
+          className={`mx-auto px-6 sm:px-10 h-16 flex items-center justify-between gap-6 ${
+            isLanding ? "max-w-[1380px]" : "max-w-[1180px]"
+          }`}
+        >
+          {/* Clean Wordmark */}
+          <Link
+            to="/"
+            className="font-display font-semibold text-[15px] tracking-[-0.02em] text-[#1D1D1F] shrink-0"
+          >
+            WarrantyOps
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
+          {/* Calm Centered Nav — Apple clarity */}
+          <nav className="hidden lg:flex items-center gap-8">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
+                  `text-[13px] transition-colors ${
                     isActive
-                      ? "bg-indigo-50/90 text-indigo-700 font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
+                      ? "text-[#1D1D1F] font-semibold"
+                      : "text-[#6E6E73] hover:text-[#1D1D1F] font-normal"
                   }`
                 }
               >
-                <item.icon className="w-4 h-4 opacity-80" />
-                <span>{item.label}</span>
+                {item.label}
               </NavLink>
             ))}
-          </nav>
-
-          {/* Right Actions */}
-          <div className="hidden sm:flex items-center gap-2.5">
             <Link
               to="/admin"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200/70 transition-colors"
-              title="Mở Bàn điều hành Quản trị"
+              className="text-[13px] text-[#6E6E73] hover:text-[#1D1D1F] font-normal transition-colors"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-indigo-600" />
-              <span>{isAdmin ? "Quản trị" : "Admin Workspace"}</span>
+              {isAdmin ? "Quản trị" : "Admin"}
             </Link>
+          </nav>
 
-            {user ? (
-              <div className="flex items-center gap-2 pl-1">
+          {/* Right Action Pill + Mobile Toggle */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="hidden sm:flex items-center gap-2">
+              {user ? (
+                <>
+                  <Link
+                    to="/home"
+                    className="editorial-pill-btn inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F5F5F7] hover:bg-[#EAEAEF] text-[13px] font-medium text-[#1D1D1F]"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span className="max-w-[130px] truncate">{user.fullname}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-8 h-8 rounded-full hover:bg-[#F5F5F7] flex items-center justify-center text-[#6E6E73] hover:text-[#1D1D1F] transition-colors cursor-pointer"
+                    title="Đăng xuất"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </>
+              ) : (
                 <Link
-                  to="/my-devices"
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:border-slate-300 transition-colors"
+                  to="/auth"
+                  className="editorial-pill-btn inline-flex items-center justify-center px-5 py-2 rounded-full bg-[#1D1D1F] hover:bg-black text-white text-[13px] font-medium"
                 >
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="max-w-[130px] truncate">{user.fullname}</span>
+                  Đăng nhập
                 </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                  title="Đăng xuất"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/auth"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-xs"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
-                <span>Đăng nhập</span>
-              </Link>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            type="button"
-            onClick={() => setMobileOpen((v) => !v)}
-            className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100"
-          >
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+            <button
+              type="button"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Mở menu điều hướng"
+              aria-expanded={mobileOpen}
+              className="lg:hidden w-9 h-9 rounded-full hover:bg-[#F5F5F7] flex items-center justify-center text-[#1D1D1F]"
+            >
+              {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Nav Drawer */}
+        {/* Mobile Drawer */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
+          <div className="lg:hidden border-t border-black/[0.06] bg-white px-6 py-5 space-y-1">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -137,37 +130,37 @@ export const PortalLayout = () => {
                 end={item.end}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-medium ${
-                    isActive ? "bg-indigo-50 text-indigo-700 font-semibold" : "text-slate-600"
+                  `block px-4 py-2.5 rounded-xl text-sm ${
+                    isActive
+                      ? "bg-[#F5F5F7] text-[#1D1D1F] font-semibold"
+                      : "text-[#6E6E73] hover:text-[#1D1D1F]"
                   }`
                 }
               >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
+                {item.label}
               </NavLink>
             ))}
-            <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div className="pt-4 mt-3 border-t border-black/[0.06] flex items-center justify-between gap-3">
               <Link
                 to="/admin"
                 onClick={() => setMobileOpen(false)}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 text-xs font-semibold text-slate-700"
+                className="text-sm font-medium text-[#6E6E73] hover:text-[#1D1D1F] px-4 py-2"
               >
-                <LayoutDashboard className="w-3.5 h-3.5 text-indigo-600" />
-                Admin Workspace
+                Quản trị
               </Link>
               {user ? (
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-xs font-semibold text-rose-600 px-3 py-2"
+                  className="px-4 py-2 rounded-full bg-[#F5F5F7] text-xs font-medium text-[#1D1D1F]"
                 >
-                  Đăng xuất ({user.fullname})
+                  Đăng xuất
                 </button>
               ) : (
                 <Link
                   to="/auth"
                   onClick={() => setMobileOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold"
+                  className="px-5 py-2 rounded-full bg-[#1D1D1F] text-white text-xs font-medium"
                 >
                   Đăng nhập
                 </Link>
@@ -177,32 +170,95 @@ export const PortalLayout = () => {
         )}
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      {/* Main Content — Landing gets full-bleed Apple bands, inner app pages get generous centered canvas */}
+      <main
+        className={
+          isLanding
+            ? "flex-1 w-full"
+            : "flex-1 w-full max-w-[1180px] mx-auto px-6 sm:px-8 py-10 sm:py-14"
+        }
+      >
         <Outlet />
       </main>
 
-      {/* Minimalist Airy Footer */}
-      <footer className="border-t border-slate-200/70 bg-white mt-12 no-print">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <ShieldCheck className="w-3.5 h-3.5" />
+      {/* Quiet Apple-Style Footer */}
+      <footer className="bg-[#F5F5F7] border-t border-black/[0.06] no-print">
+        <div className="max-w-[1180px] mx-auto px-6 sm:px-8 py-14">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-10 border-b border-black/[0.06]">
+            <div className="md:col-span-5 space-y-3">
+              <Link
+                to="/"
+                className="inline-block font-display font-semibold text-sm text-[#1D1D1F]"
+              >
+                WarrantyOps
+              </Link>
+              <p className="text-[13px] text-[#6E6E73] leading-relaxed max-w-xs">
+                Lưu trữ chứng từ bảo hành số, tự động nhắc hạn và dẫn đường GPS tới trung tâm kỹ thuật gần nhất.
+              </p>
             </div>
-            <span className="font-semibold text-slate-700">WarrantyOps Platform</span>
-            <span>·</span>
-            <span>Hệ thống lưu trữ chứng từ bảo hành số &amp; điều phối kỹ thuật thông minh</span>
+
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-semibold text-[#1D1D1F]">Khám phá</div>
+              <ul className="space-y-2.5 text-[13px] text-[#6E6E73]">
+                <li>
+                  <Link to="/" className="hover:text-[#1D1D1F] transition-colors">
+                    Giới thiệu
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/home" className="hover:text-[#1D1D1F] transition-colors">
+                    Không gian Home
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/lookup" className="hover:text-[#1D1D1F] transition-colors">
+                    Tra cứu QR
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-3 space-y-3">
+              <div className="text-xs font-semibold text-[#1D1D1F]">Dịch vụ</div>
+              <ul className="space-y-2.5 text-[13px] text-[#6E6E73]">
+                <li>
+                  <Link to="/my-devices" className="hover:text-[#1D1D1F] transition-colors">
+                    Sổ thiết bị cá nhân
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/submit-request" className="hover:text-[#1D1D1F] transition-colors">
+                    Gửi yêu cầu bảo hành
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/track" className="hover:text-[#1D1D1F] transition-colors">
+                    Theo dõi tiến độ 6 bước
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="md:col-span-2 space-y-3">
+              <div className="text-xs font-semibold text-[#1D1D1F]">Hệ thống</div>
+              <ul className="space-y-2.5 text-[13px] text-[#6E6E73]">
+                <li>
+                  <Link to="/admin" className="hover:text-[#1D1D1F] transition-colors">
+                    Cổng Quản trị
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/auth" className="hover:text-[#1D1D1F] transition-colors">
+                    Tài khoản
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
-          <div className="flex items-center gap-5">
-            <Link to="/lookup" className="hover:text-indigo-600 transition-colors">
-              Xác thực QR / Serial
-            </Link>
-            <Link to="/submit-request" className="hover:text-indigo-600 transition-colors">
-              Định tuyến Trạm AI
-            </Link>
-            <Link to="/admin" className="hover:text-indigo-600 transition-colors">
-              Cổng Quản trị
-            </Link>
+
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#86868B]">
+            <span>© 2026 WarrantyOps. Bảo lưu mọi quyền.</span>
+            <span>Nền tảng Quản lý Chứng từ Bảo hành &amp; Điều phối GPS</span>
           </div>
         </div>
       </footer>

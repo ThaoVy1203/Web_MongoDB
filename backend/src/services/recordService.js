@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../utils/apiError.js";
-import { decorateRecord, decorateTicket } from "../utils/formatters.js";
+import { addMonthsSafe, decorateRecord, decorateTicket } from "../utils/formatters.js";
 import { WarrantyRecord } from "../models/warrantyRecordModel.js";
 import { WarrantyTicket } from "../models/warrantyTicketModel.js";
+import { Customer } from "../models/customerModel.js";
+
+const stripDigits = (str = "") => String(str).replace(/\D/g, "");
 
 const findRawRecordByIdOrCode = async (idOrCode) => {
   const q = String(idOrCode || "").trim();
@@ -13,14 +16,36 @@ const findRawRecordByIdOrCode = async (idOrCode) => {
     if (byId) return byId;
   }
   const upper = q.toUpperCase();
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return WarrantyRecord.findOne({
-    $or: [{ wbCode: upper }, { serialNumber: upper }, { imei: q }],
+    $or: [{ wbCode: upper }, { serialNumber: upper }, { imei: new RegExp(`^${escaped}$`, "i") }],
   });
 };
 
-const listRecords = async ({ status = "all", q = "", customerCode = "", email = "" } = {}) => {
-  const docs = await WarrantyRecord.find({}).sort({ createdAt: -1 });
-  const tickets = await WarrantyTicket.find({}).lean();
+const generateUniqueWbCode = async (preferred = "") => {
+  const clean = String(preferred || "").trim().toUpperCase();
+  if (clean) return clean;
+  const year = new Date().getFullYear();
+  for (let i = 0; i < 6; i += 1) {
+    const code = `WB-${year}-${Math.floor(1000 + Math.random() * 8999)}`;
+    const exists = await WarrantyRecord.exists({ wbCode: code });
+    if (!exists) return code;
+  }
+  return `WB-${year}-${Date.now().toString().slice(-5)}`;
+};
+
+const listRecords = async ({
+  status = "all",
+  q = "",
+  customerCode = "",
+  email = "",
+  phone = "",
+  strictMine = false,
+} = {}) => {
+  const [docs, tickets] = await Promise.all([
+    WarrantyRecord.find({}).sort({ createdAt: -1 }),
+    WarrantyTicket.find({}).lean(),
+  ]);
 
   const decoratedAll = docs.map((doc) => {
     const rec = decorateRecord(doc);
@@ -37,7 +62,15 @@ const listRecords = async ({ status = "all", q = "", customerCode = "", email = 
   });
 
   let scoped = decoratedAll;
-  if (customerCode || email) {
+  const cleanUserPhone = stripDigits(phone);
+  if (strictMine) {
+    scoped = decoratedAll.filter(
+      (r) =>
+        (customerCode && r.customerCode === customerCode) ||
+        (email && r.customerEmail && r.customerEmail.toLowerCase() === email.toLowerCase()) ||
+        (cleanUserPhone.length >= 9 && stripDigits(r.customerPhone) === cleanUserPhone)
+    );
+  } else if (customerCode || email) {
     const matched = decoratedAll.filter(
       (r) =>
         (customerCode && r.customerCode === customerCode) ||
@@ -94,24 +127,30 @@ const getRecordDetail = async (idOrCode) => {
 const lookupDevice = async (rawQuery = "") => {
   const query = String(rawQuery || "").trim();
   if (!query) {
-    const fallback = await WarrantyRecord.findOne({}).sort({ createdAt: -1 });
-    if (!fallback) return null;
-    return getRecordDetail(fallback.wbCode);
+    return null;
   }
 
   const upper = query.toUpperCase();
-  const recordDoc = await WarrantyRecord.findOne({
-    $or: [{ serialNumber: upper }, { wbCode: upper }, { imei: query }],
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  let recordDoc = await WarrantyRecord.findOne({
+    $or: [{ serialNumber: upper }, { wbCode: upper }, { imei: new RegExp(`^${escaped}$`, "i") }],
   });
+
+  // Hỗ trợ tra cứu bằng SĐT khách hàng (>= 9 chữ số)
+  const digits = stripDigits(query);
+  if (!recordDoc && digits.length >= 9) {
+    const allRecs = await WarrantyRecord.find({}).sort({ createdAt: -1 });
+    recordDoc = allRecs.find((r) => stripDigits(r.customerPhone) === digits) || null;
+  }
 
   if (recordDoc) {
     return getRecordDetail(recordDoc._id);
   }
 
-  // Fallback check if user entered a RMA ticket code
+  // Fallback check if user entered an RMA ticket code
   const ticketDoc = await WarrantyTicket.findOne({
     $or: [{ warrantyCode: upper }, { productSerial: upper }],
-  });
+  }).sort({ createdAt: -1 });
 
   if (ticketDoc) {
     const linkedRecord = await WarrantyRecord.findOne({
@@ -123,8 +162,7 @@ const lookupDevice = async (rawQuery = "") => {
 
     const pDate = ticketDoc.purchaseDate || ticketDoc.createdAt || new Date();
     const eDate =
-      ticketDoc.warrantyExpiryDate ||
-      new Date(new Date(pDate).getTime() + (ticketDoc.warrantyPeriodMonths || 12) * 30 * 86400000);
+      ticketDoc.warrantyExpiryDate || addMonthsSafe(pDate, ticketDoc.warrantyPeriodMonths || 12);
 
     return {
       ...decorateRecord({
@@ -135,14 +173,18 @@ const lookupDevice = async (rawQuery = "") => {
         category: ticketDoc.category,
         categoryTag: "CHỨNG TỪ PHIẾU BẢO HÀNH",
         origin: "Chính hãng",
+        customerCode: ticketDoc.customerCode || "",
         customerName: ticketDoc.customerName,
         customerPhone: ticketDoc.customerPhone,
+        customerEmail: ticketDoc.customerEmail || "",
         customerAddress: ticketDoc.customerAddress,
         purchaseDate: pDate,
         endDate: eDate,
         periodMonths: ticketDoc.warrantyPeriodMonths || 12,
         packageName: ticketDoc.servicePackage,
         packageDesc: ticketDoc.issueDescription,
+        image:
+          "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=800&q=80",
         benefits: [],
         renewalHistory: [],
       }),
@@ -154,12 +196,13 @@ const lookupDevice = async (rawQuery = "") => {
 };
 
 const batchCheckSerials = async (serialsInput = "") => {
-  const list = Array.isArray(serialsInput)
+  const rawList = Array.isArray(serialsInput)
     ? serialsInput
-    : String(serialsInput)
-        .split(/[\n,;]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
+    : String(serialsInput || "").split(/[\n,;]+/);
+
+  const list = rawList
+    .map((s) => (typeof s === "string" ? s.trim() : ""))
+    .filter(Boolean);
 
   const results = [];
   for (const item of list.slice(0, 40)) {
@@ -189,11 +232,42 @@ const createRecord = async (payload, currentUser = null) => {
     );
   }
 
-  const pDate = payload.purchaseDate ? new Date(payload.purchaseDate) : new Date();
+  const parsedP = payload.purchaseDate ? new Date(payload.purchaseDate) : new Date();
+  if (Number.isNaN(parsedP.getTime())) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, "Ngày mua / kích hoạt không hợp lệ.");
+  }
+
   const months = Number(payload.periodMonths) || 12;
-  const endDate = new Date(pDate.getTime() + months * 30 * 24 * 60 * 60 * 1000);
-  const rand = Math.floor(1000 + Math.random() * 8999);
-  const wbCode = (payload.wbCode && payload.wbCode.trim().toUpperCase()) || `WB-2026-${rand}`;
+  const endDate = addMonthsSafe(parsedP, months);
+  const wbCode = await generateUniqueWbCode(payload.wbCode);
+
+  const isStaff = currentUser && ["admin", "technician"].includes(currentUser.role);
+  let resolvedCustomerCode = payload.customerCode || "";
+  let resolvedEmail = payload.customerEmail || "";
+
+  // Nếu Admin cấp hộ khách hàng mà chưa gửi customerCode, tự động khớp theo SĐT/Email nếu khách đã có trong CRM
+  if (!resolvedCustomerCode && (payload.customerPhone || payload.customerEmail)) {
+    const cleanPhone = stripDigits(payload.customerPhone);
+    const crmList = await Customer.find({}).lean();
+    const matchedCrm = crmList.find(
+      (c) =>
+        (payload.customerEmail &&
+          c.email &&
+          c.email.toLowerCase() === payload.customerEmail.toLowerCase()) ||
+        (cleanPhone.length >= 9 && stripDigits(c.phone) === cleanPhone)
+    );
+    if (matchedCrm) {
+      resolvedCustomerCode = matchedCrm.customerCode;
+      resolvedEmail = resolvedEmail || matchedCrm.email || "";
+    }
+  }
+
+  if (!resolvedCustomerCode && !isStaff && currentUser?.customerCode) {
+    resolvedCustomerCode = currentUser.customerCode;
+  }
+  if (!resolvedEmail && !isStaff && currentUser?.email) {
+    resolvedEmail = currentUser.email;
+  }
 
   const categoryImages = {
     "Điện thoại": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80",
@@ -206,21 +280,25 @@ const createRecord = async (payload, currentUser = null) => {
     wbCode,
     serialNumber: serialUpper,
     imei: payload.imei || "",
+    modelCode: payload.modelCode || "",
     productSku: payload.productSku || "",
     productName: payload.productName,
     category: payload.category || "Laptop/Máy tính",
     categoryTag: (payload.category || "CHỨNG NHẬN CHÍNH HÃNG").toUpperCase(),
     origin: payload.origin || "Chính hãng VN",
-    customerCode: payload.customerCode || currentUser?.customerCode || "KH-10294",
-    customerName: payload.customerName || currentUser?.fullname || "Khách hàng Thành viên",
-    customerPhone: payload.customerPhone || currentUser?.phone || "0912.345.891",
-    customerEmail: payload.customerEmail || currentUser?.email || "",
+    customerCode: resolvedCustomerCode,
+    customerName: payload.customerName || (!isStaff && currentUser?.fullname) || "Khách hàng Thành viên",
+    customerPhone: payload.customerPhone || (!isStaff && currentUser?.phone) || "",
+    customerEmail: resolvedEmail,
     customerAddress: payload.customerAddress || "",
-    purchaseDate: pDate,
+    purchaseDate: parsedP,
     activatedAt: new Date(),
     endDate,
     periodMonths: months,
     packageName: payload.packageName || `Bảo hành Chính hãng ${months} Tháng`,
+    packageDesc:
+      payload.packageDesc ||
+      "Hỗ trợ kiểm tra, thay thế linh kiện chính hãng theo tiêu chuẩn tại hệ thống trung tâm ủy quyền.",
     purchasePlace: payload.purchasePlace || "Cổng Kích Hoạt Trực Tuyến WarrantyOps",
     activationChannel: payload.activationChannel || "WEB",
     notes: payload.notes || "",
@@ -246,10 +324,16 @@ const renewRecord = async (idOrCode, { months = 12, note = "" } = {}) => {
   if (!doc) {
     throw new ApiError(StatusCodes.NOT_FOUND, "Không tìm thấy hồ sơ bảo hành cần gia hạn.");
   }
+  if (doc.statusOverride === "rejected") {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Chứng nhận đã bị thu hồi hiệu lực, không thể gia hạn. Vui lòng khôi phục trước."
+    );
+  }
 
   const addedMonths = Number(months) || 12;
   const baseDate = doc.endDate && new Date(doc.endDate) > new Date() ? new Date(doc.endDate) : new Date();
-  const newEndDate = new Date(baseDate.getTime() + addedMonths * 30 * 24 * 60 * 60 * 1000);
+  const newEndDate = addMonthsSafe(baseDate, addedMonths);
 
   doc.renewalHistory.push({
     addedMonths,
@@ -260,7 +344,6 @@ const renewRecord = async (idOrCode, { months = 12, note = "" } = {}) => {
   });
   doc.endDate = newEndDate;
   doc.periodMonths = (doc.periodMonths || 12) + addedMonths;
-  doc.statusOverride = "";
 
   await doc.save();
   return decorateRecord(doc);
@@ -274,6 +357,9 @@ const updateRecord = async (idOrCode, updates = {}) => {
   const allowed = [
     "productName",
     "category",
+    "imei",
+    "modelCode",
+    "customerCode",
     "customerName",
     "customerPhone",
     "customerEmail",
@@ -289,6 +375,16 @@ const updateRecord = async (idOrCode, updates = {}) => {
       doc[key] = updates[key];
     }
   }
+  if (updates.category) {
+    doc.categoryTag = String(updates.category).toUpperCase();
+  }
+  if (updates.statusOverride === "") {
+    doc.voidReason = "";
+  }
+  if (updates.statusOverride === "rejected" && !doc.voidReason) {
+    doc.voidReason = "Thu hồi hiệu lực theo biên bản kiểm định kỹ thuật.";
+  }
+
   await doc.save();
   return decorateRecord(doc);
 };
